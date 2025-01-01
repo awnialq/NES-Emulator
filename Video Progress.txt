@@ -1,3 +1,0 @@
-        Video Name                  | Timestamp
-------------------------------------------------------------
-NES Emulator Part #2 - The CPU      | 31:10
