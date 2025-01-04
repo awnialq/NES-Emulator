@@ -25,4 +25,5 @@ void olc6502::clock(){
         progc++;
         cycles = lookup[opcode].cycles; //Gets the # of cycles that given operation needs to execute. *BEST CASE SCENARIO*
     }
+    //Function not finished.
 }
