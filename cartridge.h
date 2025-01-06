@@ -15,7 +15,7 @@ class cartridge{
         cartridge(std::string &fileName);
         ~cartridge();
     private: 
-        struct cartHeader *header = nullptr;
+        struct cartHeader *header;
         uint32_t prgDataSize;
         uint32_t chrDataSize;
         std::ifstream fileStream;

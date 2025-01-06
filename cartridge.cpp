@@ -4,15 +4,14 @@
 #include <iostream>
 #include <assert.h>
 
-cartridge::cartridge(std::string &fName){
-    this -> prgDataSize = 0;
-    this -> chrDataSize = 0;
-    this -> fileName = fName;
+cartridge::cartridge(std::string &fName)
+    : prgDataSize(0), chrDataSize(0), fileName(fName), header(nullptr), fileStream(std::ifstream()) {
 }
 
 cartridge::~cartridge(){
     free(this -> header);
 }
+
 /*
 * Check if the rom is an NES rom file.
 *
@@ -23,6 +22,7 @@ void cartridge::confirmRom(){
     assert(header -> id[0] == 'S');
     assert(header -> id[0] == 0x1a);
 }
+
 /*
 * This function first opens the file with the filestream and reads the binary. it then checks if the file actually opened properly
 * After doing so, it then stores the first 16 bytes of the file into a char array and that array then gets converted into a cart header.

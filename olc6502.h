@@ -29,9 +29,6 @@ class olc6502{
         uint8_t status = 0x00; //Reps the Status Register
 
         void ConnectBus(Bus *bp) {bus  = bp;}
-        //All the possible addressing modes for the CPU
-        uint8_t IMP();
-        uint8_t ZP0();
 
         void clock();
         void reset();
@@ -45,6 +42,18 @@ class olc6502{
         uint16_t addr_relatvie = 0x00;
         uint8_t opcode = 0x00;
         uint8_t cycles = 0; 
+    private:
+        //All the possible addressing modes for the CPU
+        uint8_t IMP(); //Implicit
+        uint8_t IMM(); //Immediate
+        uint8_t ZP0(); //Zero Page 0
+        uint8_t ZPX(); //Zero Page X
+        uint8_t ZPY(); //Zero Page Y
+        uint8_t REL(); //Relative
+        uint8_t ABS(); //Absolute
+        uint8_t ABX(); //Absolute X
+        uint8_t ABY(); //Absolute Y
+        uint8_t IND(); //Indirect  
 
     private:
         Bus *bus = nullptr;
