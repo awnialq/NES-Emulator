@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <vector>
 #include <string>
+#include <fstream>
 
 struct cartHeader{
     char id[4];
@@ -11,17 +12,17 @@ struct cartHeader{
 
 class cartridge{
     public: 
-        cartridge(std::string fileName);
+        cartridge(std::string &fileName);
         ~cartridge();
     private: 
-        struct cartHeader *header;
+        struct cartHeader *header = nullptr;
         uint32_t prgDataSize;
         uint32_t chrDataSize;
-        std::string romFileName;
-
+        std::ifstream fileStream;
+        std::string &fileName;
     public:
-        void loadRom(uint8_t *rom);
+        void loadRom();
     private:
-        void defHeader(uint8_t *rom);
-        void confirmRom(uint8_t *rom);
+        void defHeader();
+        void confirmRom();
 };
