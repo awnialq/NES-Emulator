@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <vector>
+#include <string>
 
 struct cartHeader{
     char id[4];
@@ -10,12 +11,14 @@ struct cartHeader{
 
 class cartridge{
     public: 
-        cartridge();
+        cartridge(std::string fileName);
         ~cartridge();
     private: 
         struct cartHeader *header;
         uint32_t prgDataSize;
         uint32_t chrDataSize;
+        std::string romFileName;
+
     public:
         void loadRom(uint8_t *rom);
     private:

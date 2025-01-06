@@ -4,16 +4,17 @@
 #include <iostream>
 #include <assert.h>
 
-cartridge::cartridge(){
+cartridge::cartridge(std::string fileName){
     this -> prgDataSize = 0;
     this -> chrDataSize = 0;
+    this -> romFileName = fileName;
 }
 
 cartridge::~cartridge(){
     free(this -> header);
 }
 /*
-* Checks if the rom is an NES rom file.
+* Check if the rom is an NES rom file.
 *
 */
 void cartridge::confirmRom(uint8_t *rom){
