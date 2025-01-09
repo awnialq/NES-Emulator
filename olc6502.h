@@ -54,7 +54,36 @@ class olc6502{
         uint8_t ABX(); //Absolute X
         uint8_t ABY(); //Absolute Y
         uint8_t IND(); //Indirect  
-
+    private:
+        //All OpCodes - https://www.masswerk.at/6502/6502_instruction_set.html#BPL - every column left to right bottom down before moving onto the next one.
+        uint8_t BRK(); /*Break*/                          
+        uint8_t BPL(); /*Branch on plus*/            
+        uint8_t JSR(); /*Jump to Subroutine*/             
+        uint8_t BMI(); /*Branch on Minus negative set*/   
+        uint8_t RTI(); /*Return from Interrupt*/          
+        uint8_t BVC(); /*Branch on Overflow Clear*/       
+        uint8_t RTS(); /*Return from Subroutine*/         
+        uint8_t BVS(); /*Branch on Overflow Set*/         
+        uint8_t BCC(); /*Branch on Carry Clear*/          
+        uint8_t LDY(); /*Load Y Register*/
+        uint8_t BCS(); /*Branch on Carry Set*/            
+        uint8_t CPY(); /*Compare Y Register*/             
+        uint8_t BNE(); /*Branch on Not Equal*/            
+        uint8_t CPX(); /*Compare X Register*/
+        uint8_t BEQ(); /*Branch on Equal*/
+        //Column 2
+        uint8_t ORA(); /*Or with accumulator*/
+        uint8_t AND();/*And*/
+        uint8_t EOR(); /*Exclusive Or*/
+        uint8_t ADC(); /*Add with Carry*/
+        uint8_t STA(); /*Store Accumulator*/
+        uint8_t LDA(); /*Load Accumulator*/
+        uint8_t CMP(); /*Compare with accumulator*/
+        uint8_t SBC(); /*Subtract with Carry*/
+        //Column 3
+        uint8_t LDX(); /*Load X Register*/
+        //Collumn 4
+        
     private:
         Bus *bus = nullptr;
         uint8_t read(uint16_t a);
