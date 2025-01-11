@@ -3,6 +3,7 @@
 #include "cartridge.h"
 #include <iostream>
 #include <assert.h>
+#include <string.h>
 
 cartridge::cartridge(std::string &fName)
     : prgDataSize(0), chrDataSize(0), fileName(fName), header(nullptr), fileStream(std::ifstream()) {

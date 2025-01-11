@@ -1,4 +1,4 @@
-#include "olc6502.h"
+#include "cpu6502.h"
 #include "Bus.h"
 
 olc6502::olc6502(){
