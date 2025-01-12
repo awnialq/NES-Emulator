@@ -2,3 +2,4 @@
 .*/
 *.exe
 *.json
+*.code-workspace
