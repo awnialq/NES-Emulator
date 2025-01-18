@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include "cpu6502.h"
+#include "cartridge.h"
 #include <array>
 
 class Bus{
@@ -9,8 +10,10 @@ class Bus{
         ~Bus();
 
     public:
-        olc6502 cpu;
-        std::array<uint8_t, 64 * 1024> ram;
+        cpu6502 cpu;
+        std::array<uint8_t, 64 * 1024> wires;
+        cartridge game;
+
     public:
         void write(uint16_t addr, uint8_t data);
         uint8_t read(uint16_t addr, bool readOnly = false);
