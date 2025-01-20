@@ -26,3 +26,21 @@ void cpu6502::clock(){
     }
     //Function not finished.
 }
+
+uint8_t cpu6502::BPL(){ //Branch if positive insruction implementation
+    if(getFlag(FLAGS6502::N) == 0){
+        cycles++;
+        addr_absolute = progc++;
+        if((addr_absolute & 0xFF00) != (progc & 0xFF00)){
+            cycles++;
+        }
+        progc = addr_absolute;
+    }
+    return 0;
+}
+
+uint8_t cpu6502::BRK(){ //Break instruction implementation
+    progc++;
+    setFlag(I, true);
+    
+}
