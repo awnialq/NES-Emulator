@@ -3,6 +3,7 @@
 
 cpu6502::cpu6502(){
     using cpu = cpu6502; //Creates a temporary naming variable to make the table more simple.
+    this->lookup = {{}, {}};
 }
 
 cpu6502::~cpu6502(){

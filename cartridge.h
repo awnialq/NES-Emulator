@@ -12,6 +12,7 @@ struct cartHeader{
 
 class cartridge{
     public: 
+        cartridge();
         cartridge(std::string &fileName);
         ~cartridge();
     private: 

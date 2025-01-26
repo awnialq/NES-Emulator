@@ -11,7 +11,7 @@ class Bus{
 
     public:
         cpu6502 cpu;
-        std::array<uint8_t, 64 * 1024> wires;
+        std::array<uint8_t, 65536> wires;
         cartridge game;
 
     public:
