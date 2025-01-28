@@ -11,7 +11,6 @@ cpu6502::~cpu6502(){
 }
 
 
-
 uint8_t cpu6502::read(uint16_t addr){
     return bus->read(addr, false);
 }
@@ -26,6 +25,59 @@ void cpu6502::clock(){
         cycles = lookup[opcode].cycles; //Gets the # of cycles that given operation needs to execute. *BEST CASE SCENARIO*
     }
     //Function not finished.
+}
+/*
+* All the addressing modes are a WOP. 
+* Make sure to review them when you 1000% understand what is going on.
+*/
+// Implicit Addressing Mode
+uint8_t cpu6502::IMP() {
+    // Use the accumulator register as an offset
+    uint8_t offset = accum;
+    return read(offset);
+}
+
+// Immediate Addressing Mode
+uint8_t cpu6502::IMM() {
+    // Directly load a byte from memory
+    uint16_t addr = 0x0000; // Hardcoded address for demo purposes
+    uint8_t data = bus->read(addr, true); // Read as an immediate value
+    return data;
+}
+
+// Zero Page 0 Addressing Mode
+uint8_t cpu6502::ZP0() {
+    // Use the X and Y registers to access memory locations in the zero page
+    uint16_t addr = x * 16; // Zero page location
+    return bus->read(addr, true); // Read as a byte from the zero page
+}
+
+// Zero Page X Addressing Mode
+uint8_t cpu6502::ZPX() {
+    // Use the X register to access memory locations in the zero page
+    uint16_t addr = x * 16; // Zero page location
+    return bus->read(addr, true); // Read as a byte from the zero page
+}
+
+// Zero Page Y Addressing Mode
+uint8_t cpu6502::ZPY() {
+    // Use the X register to access memory locations in the zero page
+    uint16_t addr = y * 16; // Zero page location
+    return bus->read(addr, true); // Read as a byte from the zero page
+}
+
+// Absolute Addressing Mode
+uint8_t cpu6502::ABS() {
+    // Use an absolute address to access memory
+    uint16_t addr = addr_absolute;
+    return bus->read(addr, true); // Read as a byte from memory
+}
+
+// Relative Addressing Mode
+uint8_t cpu6502::REL() {
+    // Use a relative address to access memory
+    uint16_t addr = addr_relatvie;
+    return bus->read(addr, true); // Read as a byte from memory
 }
 
 uint8_t cpu6502::BPL(){ //Branch if positive insruction implementation
