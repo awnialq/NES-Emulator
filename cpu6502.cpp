@@ -1,8 +1,7 @@
 #include "cpu6502.h"
 #include "Bus.h"
-
-cpu6502::cpu6502(){
-    using cpu = cpu6502; //Creates a temporary naming variable to make the table more simple.
+using cpu = cpu6502; //Creates a temporary naming variable to make the table more simple.
+cpu::cpu6502(){
     this->lookup = {{}, {}};
 }
 
@@ -92,7 +91,16 @@ uint8_t cpu6502::BPL(){ //Branch if positive insruction implementation
     return 0;
 }
 
-uint8_t cpu6502::BRK(){ //Break instruction implementation
+uint8_t cpu6502::JMP(){
+    progc = addr_absolute;
+}
+
+uint8_t cpu::LSR(){
+    //Implement the memory addr bitshift later *REMEMBER TO DO*
+    accum = accum >> 1;
+}
+
+uint8_t cpu::BRK(){ //Break instruction implementation
     progc++;
     setFlag(I, true);
     
