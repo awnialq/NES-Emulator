@@ -105,38 +105,54 @@ uint8_t cpu::BRK(){ //Break instruction implementation
     setFlag(I, true);
 }
 
-uint8_t cpu::STA(){
+uint8_t cpu::SEC(){ //Set carry flag to high
+    setFlag(C, true);
+}
+
+uint8_t cpu::SED(){ //Set decimal flag to high
+    setFlag(D, true);
+}
+
+uint8_t cpu::SEI(){ //Set interrupt disable status to high
+    setFlag(I,true);
+}
+
+uint8_t cpu::STA(){ //Store accumulator in Memory
     bus->write(addr_absolute, accum);
 }
 
-uint8_t cpu::STX(){
+uint8_t cpu::STX(){ //Store register X @ a memory location
     bus->write(addr_absolute, x);
 }
 
-uint8_t cpu::STY(){
+uint8_t cpu::STY(){ //Store register Y @ a memory location
     bus->write(addr_absolute, y);
 }
 
-uint8_t cpu::TAX(){
+uint8_t cpu::TAX(){ //Transfer accumulator to X
     x = accum;
 }
 
-uint8_t cpu::TAY(){
+uint8_t cpu::TAY(){ //Transfer Accumulator to Y
     y = accum;
 }
 
-uint8_t cpu::TSX(){
+uint8_t cpu::TSX(){ //Transfer stack pointer register to X
     x = stackp;
 }
 
-uint8_t cpu::TXS(){
-    stackp = x;
-}
-
-uint8_t cpu::TXA(){
+uint8_t cpu::TXA(){ //Transfer register X to accumulator
     accum = x;
 }
 
-uint8_t cpu::TYA(){
+uint8_t cpu::TXS(){ //Transfer X to Stack pointer register
+    stackp = x;
+}
+
+uint8_t cpu::TXA(){ //Transfer Index X to Accumulator
+    accum = x;
+}
+
+uint8_t cpu::TYA(){ //Transfer Index Y to Accumulator
     accum = y;
 }
