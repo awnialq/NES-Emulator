@@ -103,5 +103,40 @@ uint8_t cpu::LSR(){
 uint8_t cpu::BRK(){ //Break instruction implementation
     progc++;
     setFlag(I, true);
-    
+}
+
+uint8_t cpu::STA(){
+    bus->write(addr_absolute, accum);
+}
+
+uint8_t cpu::STX(){
+    bus->write(addr_absolute, x);
+}
+
+uint8_t cpu::STY(){
+    bus->write(addr_absolute, y);
+}
+
+uint8_t cpu::TAX(){
+    x = accum;
+}
+
+uint8_t cpu::TAY(){
+    y = accum;
+}
+
+uint8_t cpu::TSX(){
+    x = stackp;
+}
+
+uint8_t cpu::TXS(){
+    stackp = x;
+}
+
+uint8_t cpu::TXA(){
+    accum = x;
+}
+
+uint8_t cpu::TYA(){
+    accum = y;
 }
