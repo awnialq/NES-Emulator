@@ -105,6 +105,15 @@ uint8_t cpu::BRK(){ //Break instruction implementation
     setFlag(I, true);
 }
 
+uint8_t cpu::RTS(){
+    
+}
+
+uint8_t cpu::SBC(){//Subtract memory value from accumulator with Borrow (aka carry)
+    fetch();
+    accum = accum - fetched - (uint16_t)~getFlag(C);
+}
+
 uint8_t cpu::SEC(){ //Set carry flag to high
     setFlag(C, true);
 }
