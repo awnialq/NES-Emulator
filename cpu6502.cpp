@@ -79,6 +79,10 @@ uint8_t cpu6502::REL() {
     return bus->read(addr, true); // Read as a byte from memory
 }
 
+uint8_t cpu::NOP(){ //No operation instruction
+    return 1;
+}
+
 uint8_t cpu6502::BPL(){ //Branch if positive insruction implementation
     if(getFlag(FLAGS6502::N) == 0){
         cycles++;
@@ -91,7 +95,12 @@ uint8_t cpu6502::BPL(){ //Branch if positive insruction implementation
     return 0;
 }
 
-uint8_t cpu6502::JMP(){
+uint8_t cpu::PHA(){ //Push accumulator onto the stack.
+    bus->write(0x0100 + stackp, accum);
+    stackp--;
+}
+
+uint8_t cpu::JMP(){
     progc = addr_absolute;
 }
 
