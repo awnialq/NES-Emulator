@@ -79,6 +79,7 @@ uint8_t cpu6502::REL() {
     return bus->read(addr, true); // Read as a byte from memory
 }
 
+
 uint8_t cpu::NOP(){ //No operation instruction
     return 1;
 }
@@ -104,9 +105,16 @@ uint8_t cpu::JMP(){
     progc = addr_absolute;
 }
 
-uint8_t cpu::LSR(){
-    //Implement the memory addr bitshift later *REMEMBER TO DO*
-    accum = accum >> 1;
+uint8_t cpu::LSR(){ //Logical Shift Right implementation
+    fetch();
+    setFlag(C, fetched & 0x0001);
+    fetched = fetched >> 1;
+    if(fetched == 0x00){
+        setFlag(Z, true);
+    }
+    if(fetched & 0x80){
+        setFlag(N, true);
+    }
 }
 
 uint8_t cpu::BRK(){ //Break instruction implementation
