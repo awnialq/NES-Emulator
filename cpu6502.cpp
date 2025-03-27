@@ -9,6 +9,9 @@ cpu6502::~cpu6502(){
 
 }
 
+uint8_t cpu::fetch(){
+
+}
 
 uint8_t cpu6502::read(uint16_t addr){
     return bus->read(addr, false);
@@ -123,7 +126,11 @@ uint8_t cpu::BRK(){ //Break instruction implementation
 }
 
 uint8_t cpu::RTS(){
-    
+    uint8_t popped = bus->read(stackp,true);
+    stackp -= 0x1;
+    popped++;
+    progc = popped;
+    return 0;
 }
 
 uint8_t cpu::SBC(){//Subtract memory value from accumulator with Borrow (aka carry)
