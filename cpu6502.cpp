@@ -108,6 +108,42 @@ uint8_t cpu::JMP(){
     progc = addr_absolute;
 }
 
+uint8_t cpu::PLA(){
+    stackp++;
+    accum = bus->read(stackp, false);
+    if(accum == 0x00){
+        setFlag(Z,0);
+    }
+    setFlag(N,accum >> 7);
+}
+
+uint8_t cpu::PLP(){
+    stackp++;
+    uint8_t temp = read(stackp);
+    setFlag(N, (temp >> 7));
+    setFlag(V, ((temp >> 6) & 0x01));
+    setFlag(D, ((temp >> 3) & 0x01));
+    setFlag(I, ((temp >> 2) & 0x01));
+    setFlag(Z, ((temp >> 1) & 0x01));
+    setFlag(C, (temp & 0x01));
+}
+
+uint8_t cpu::ROR(){
+    fetch();
+    uint8_t temp = fetched & 0x01;
+    temp = temp << 7;
+    fetched = fetched >> 1;
+    fetched = fetched & temp;
+}
+
+uint8_t cpu::ROL(){
+    fetch();
+    uint8_t temp = fetched & 0x80;
+    temp = temp >> 7;
+    fetched = fetched << 1;
+    fetched = fetched & temp;
+}
+
 uint8_t cpu::LSR(){ //Logical Shift Right implementation
     fetch();
     setFlag(C, fetched & 0x0001);
