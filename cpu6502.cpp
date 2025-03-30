@@ -170,11 +170,18 @@ uint8_t cpu::BRK(){ //Break instruction implementation
 }
 
 uint8_t cpu::RTI(){
-    read(stackp--);
+    uint8_t temp = read(stackp--);
+    setFlag(N, (temp >> 7));
+    setFlag(V, ((temp >> 6) & 0x01));
+    setFlag(D, ((temp >> 3) & 0x01));
+    setFlag(I, ((temp >> 2) & 0x01));
+    setFlag(Z, ((temp >> 1) & 0x01));
+    setFlag(C, (temp & 0x01));
+    temp = read(stackp--);
 }
 
 uint8_t cpu::RTS(){
-    uint8_t popped = bus->read(stackp,true);
+    uint8_t popped = read(stackp);
     stackp -= 0x1;
     popped++;
     progc = popped;
