@@ -108,6 +108,14 @@ uint8_t cpu::JMP(){
     progc = addr_absolute;
 }
 
+uint8_t cpu::PHP(){
+    uint8_t data;
+    data = getFlag(N) | getFlag(V) | (1 << 5) 
+    | (1 << 4) | getFlag(D) | getFlag(I) 
+    | getFlag(Z) | getFlag(C);
+    write(stackp--,data);
+}
+
 uint8_t cpu::PLA(){
     stackp++;
     accum = bus->read(stackp, false);
@@ -159,6 +167,10 @@ uint8_t cpu::LSR(){ //Logical Shift Right implementation
 uint8_t cpu::BRK(){ //Break instruction implementation
     progc++;
     setFlag(I, true);
+}
+
+uint8_t cpu::RTI(){
+    read(stackp--);
 }
 
 uint8_t cpu::RTS(){
