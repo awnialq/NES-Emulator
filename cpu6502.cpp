@@ -1,11 +1,14 @@
 #include "cpu6502.h"
 #include "Bus.h"
 using cpu = cpu6502; //Creates a temporary naming variable to make the table more simple.
+
 cpu::cpu6502(){
-    this->lookup = {{}, {}};
+    this->lookup = {
+        {"BRK", &cpu::BRK, &cpu::IMP, 7}, {"ORA", &cpu::ORA, &cpu::INX, 6}, {"ORA", &cpu::ORA, &cpu::ZP0, 3}, {"ASL", &cpu::ASL, &cpu::ZP0, 5}, {"Dummy", &cpu::DUM, &cpu::IMM, 5}, {"PHP", &cpu::PHP, &cpu::IMP, 3}, {"ORA", &cpu::ORA, &cpu::IMM, 2}, {"ASL", &cpu::ASL, &cpu::IMP, 2}, {"Dummy", &cpu::DUM, &cpu::IMM, 2}, {"Dummy", &cpu::DUM, &cpu::IMM, 2}, {"ORA", &cpu::ORA, &cpu::ABS, 4}, {"ASL", &cpu::ASL, &cpu::ABS, 6}, {"Dummy", &cpu::DUM, &cpu::IMM, 6}
+    };
 }
 
-cpu6502::~cpu6502(){
+cpu::~cpu6502(){
 
 }
 
@@ -13,14 +16,14 @@ uint8_t cpu::fetch(){
 
 }
 
-uint8_t cpu6502::read(uint16_t addr){
+uint8_t cpu::read(uint16_t addr){
     return bus->read(addr, false);
 }
 
-void cpu6502::write(uint16_t addr, uint8_t dest){
+void cpu::write(uint16_t addr, uint8_t dest){
     bus->write(addr, dest);
 }
-void cpu6502::clock(){
+void cpu::clock(){
     if(cycles == 0){
         opcode = read(progc);
         progc++;
@@ -33,14 +36,14 @@ void cpu6502::clock(){
 * Make sure to review them when you 1000% understand what is going on.
 */
 // Implicit Addressing Mode
-uint8_t cpu6502::IMP() {
+uint8_t cpu::IMP() {
     // Use the accumulator register as an offset
     uint8_t offset = accum;
     return read(offset);
 }
 
 // Immediate Addressing Mode
-uint8_t cpu6502::IMM() {
+uint8_t cpu::IMM() {
     // Directly load a byte from memory
     uint16_t addr = 0x0000; // Hardcoded address for demo purposes
     uint8_t data = bus->read(addr, true); // Read as an immediate value
@@ -48,35 +51,35 @@ uint8_t cpu6502::IMM() {
 }
 
 // Zero Page 0 Addressing Mode
-uint8_t cpu6502::ZP0() {
+uint8_t cpu::ZP0() {
     // Use the X and Y registers to access memory locations in the zero page
     uint16_t addr = x * 16; // Zero page location
     return bus->read(addr, true); // Read as a byte from the zero page
 }
 
 // Zero Page X Addressing Mode
-uint8_t cpu6502::ZPX() {
+uint8_t cpu::ZPX() {
     // Use the X register to access memory locations in the zero page
     uint16_t addr = x * 16; // Zero page location
     return bus->read(addr, true); // Read as a byte from the zero page
 }
 
 // Zero Page Y Addressing Mode
-uint8_t cpu6502::ZPY() {
+uint8_t cpu::ZPY() {
     // Use the X register to access memory locations in the zero page
     uint16_t addr = y * 16; // Zero page location
     return bus->read(addr, true); // Read as a byte from the zero page
 }
 
 // Absolute Addressing Mode
-uint8_t cpu6502::ABS() {
+uint8_t cpu::ABS() {
     // Use an absolute address to access memory
     uint16_t addr = addr_absolute;
     return bus->read(addr, true); // Read as a byte from memory
 }
 
 // Relative Addressing Mode
-uint8_t cpu6502::REL() {
+uint8_t cpu::REL() {
     // Use a relative address to access memory
     uint16_t addr = addr_relatvie;
     return bus->read(addr, true); // Read as a byte from memory
@@ -87,7 +90,7 @@ uint8_t cpu::NOP(){ //No operation instruction
     return 1;
 }
 
-uint8_t cpu6502::BPL(){ //Branch if positive insruction implementation
+uint8_t cpu::BPL(){ //Branch if positive insruction implementation
     if(getFlag(FLAGS6502::N) == 0){
         cycles++;
         addr_absolute = progc++;

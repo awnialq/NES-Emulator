@@ -112,6 +112,7 @@ class cpu6502{
         uint8_t TXA(); // transfer X to accumulator
         uint8_t TXS(); // transfer X to stack pointer
         uint8_t TYA(); // transfer Y to accumulator
+        uint8_t DUM(); // dummy instruction for non-defined opcodes
     private:
         Bus *bus = nullptr;
         uint8_t read(uint16_t a);
