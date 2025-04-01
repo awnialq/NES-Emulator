@@ -14,7 +14,7 @@ class cpu6502{
             C = (1 << 0), //Carry
             Z = (1 << 1), //Zero Result
             I = (1 << 2), //Disable Interruptions
-            D = (1 << 3), //Decimal Mode
+            D = (1 << 3), //Decimal Mode (not supported by NES)
             B = (1 << 4), //Break
             U = (1 << 5), //Not Used
             V = (1 << 6), //Overflow

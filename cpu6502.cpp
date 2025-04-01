@@ -4,7 +4,8 @@ using cpu = cpu6502; //Creates a temporary naming variable to make the table mor
 
 cpu::cpu6502(){
     this->lookup = {
-        {"BRK", &cpu::BRK, &cpu::IMP, 7}, {"ORA", &cpu::ORA, &cpu::INX, 6}, {"ORA", &cpu::ORA, &cpu::ZP0, 3}, {"ASL", &cpu::ASL, &cpu::ZP0, 5}, {"Dummy", &cpu::DUM, &cpu::IMM, 5}, {"PHP", &cpu::PHP, &cpu::IMP, 3}, {"ORA", &cpu::ORA, &cpu::IMM, 2}, {"ASL", &cpu::ASL, &cpu::IMP, 2}, {"Dummy", &cpu::DUM, &cpu::IMM, 2}, {"Dummy", &cpu::DUM, &cpu::IMM, 2}, {"ORA", &cpu::ORA, &cpu::ABS, 4}, {"ASL", &cpu::ASL, &cpu::ABS, 6}, {"Dummy", &cpu::DUM, &cpu::IMM, 6}
+                            //Horizontal (LSB) 0x0_
+    /*Vertical 0x_0 (MSB)*/{"BRK", &cpu::BRK, &cpu::IMP, 7}, {"ORA", &cpu::ORA, &cpu::INX, 6}, {"ORA", &cpu::ORA, &cpu::ZP0, 3}, {"ASL", &cpu::ASL, &cpu::ZP0, 5}, {"Dummy", &cpu::DUM, &cpu::IMM, 5}, {"PHP", &cpu::PHP, &cpu::IMP, 3}, {"ORA", &cpu::ORA, &cpu::IMM, 2}, {"ASL", &cpu::ASL, &cpu::IMP, 2}, {"Dummy", &cpu::DUM, &cpu::IMM, 2}, {"Dummy", &cpu::DUM, &cpu::IMM, 2}, {"ORA", &cpu::ORA, &cpu::ABS, 4}, {"ASL", &cpu::ASL, &cpu::ABS, 6}, {"Dummy", &cpu::DUM, &cpu::IMM, 6}
     };
 }
 
@@ -28,8 +29,12 @@ void cpu::clock(){
         opcode = read(progc);
         progc++;
         cycles = lookup[opcode].cycles; //Gets the # of cycles that given operation needs to execute. *BEST CASE SCENARIO*
+
+        (this->*lookup[opcode].addrmode)();
+        (this->*lookup[opcode].operate)();
     }
-    //Function not finished.
+    
+    cycles--;
 }
 /*
 * All the addressing modes are a WOP. 
@@ -37,9 +42,9 @@ void cpu::clock(){
 */
 // Implicit Addressing Mode
 uint8_t cpu::IMP() {
-    // Use the accumulator register as an offset
-    uint8_t offset = accum;
-    return read(offset);
+    // Use the accumulator to store the fetched dat
+    fetched = accum;
+    return 0;
 }
 
 // Immediate Addressing Mode
