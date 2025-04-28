@@ -14,8 +14,13 @@ cpu::~cpu6502(){
 
 }
 
-uint8_t cpu::fetch(){
+//core functionality
 
+uint8_t cpu::fetch(){
+    if(!(lookup[opcode].addrmode == &cpu::IMP)){
+        fetched = read(addr_absolute);
+    }
+    return 0;
 }
 
 uint8_t cpu::read(uint16_t addr){
@@ -138,6 +143,15 @@ uint8_t cpu::REL(){
     return 0;
 }
 
+//Instructions
+
+uint8_t cpu::AND(){
+    fetch();
+    accum = accum & fetched;
+    setFlag(Z, accum == 0x00);
+    setFlag(N, accum & 0x80);
+    return 1;
+}
 
 uint8_t cpu::NOP(){ //No operation instruction
     return 1;
@@ -159,6 +173,8 @@ uint8_t cpu::PHA(){ //Push accumulator onto the stack.
     bus->write(0x0100 + stackp, accum);
     stackp--;
 }
+
+
 
 uint8_t cpu::JMP(){
     progc = addr_absolute;
