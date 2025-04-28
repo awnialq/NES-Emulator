@@ -27,8 +27,7 @@ void cpu::write(uint16_t addr, uint8_t dest){
 }
 void cpu::clock(){
     if(cycles == 0){
-        opcode = read(progc);
-        progc++;
+        opcode = read(progc++);
         cycles = lookup[opcode].cycles; //Gets the # of cycles that given operation needs to execute. *BEST CASE SCENARIO*
 
         (this->*lookup[opcode].addrmode)();
@@ -37,10 +36,7 @@ void cpu::clock(){
     
     cycles--;
 }
-/*
-* All the addressing modes are a WOP. 
-* Make sure to review them when you 1000% understand what is going on.
-*/
+
 // Implicit Addressing Mode
 uint8_t cpu::IMP() {
     // Use the accumulator to store the fetched dat
@@ -51,44 +47,95 @@ uint8_t cpu::IMP() {
 // Immediate Addressing Mode
 uint8_t cpu::IMM() {
     // Directly load a byte from memory
-    uint16_t addr = 0x0000; // Hardcoded address for demo purposes
-    uint8_t data = bus->read(addr, true); // Read as an immediate value
-    return data;
+    addr_absolute = progc++;
+    return 0;
 }
 
 // Zero Page 0 Addressing Mode
 uint8_t cpu::ZP0() {
-    // Use the X and Y registers to access memory locations in the zero page
-    uint16_t addr = x * 16; // Zero page location
-    return bus->read(addr, true); // Read as a byte from the zero page
+    addr_absolute = read(progc++);
+    addr_absolute &= 0x00FF;
+    return 0;
 }
 
 // Zero Page X Addressing Mode
 uint8_t cpu::ZPX() {
-    // Use the X register to access memory locations in the zero page
-    uint16_t addr = x * 16; // Zero page location
-    return bus->read(addr, true); // Read as a byte from the zero page
+    addr_absolute = (read(progc++) + x);
+    addr_absolute &= 0x00FF;
+    return 0;
 }
 
 // Zero Page Y Addressing Mode
 uint8_t cpu::ZPY() {
-    // Use the X register to access memory locations in the zero page
-    uint16_t addr = y * 16; // Zero page location
-    return bus->read(addr, true); // Read as a byte from the zero page
+    addr_absolute = (read(progc++) + y);
+    addr_absolute &= 0x00FF;
+    return 0;
 }
 
 // Absolute Addressing Mode
 uint8_t cpu::ABS() {
-    // Use an absolute address to access memory
-    uint16_t addr = addr_absolute;
-    return bus->read(addr, true); // Read as a byte from memory
+    uint16_t lowByte = read(progc++);
+    uint16_t hiByte = read(progc++);
+    addr_absolute = (hiByte << 8) | lowByte;
+    return 0;
 }
 
-// Relative Addressing Mode
-uint8_t cpu::REL() {
-    // Use a relative address to access memory
-    uint16_t addr = addr_relatvie;
-    return bus->read(addr, true); // Read as a byte from memory
+//Absolute X Addressing Mode
+uint8_t cpu::ABX(){
+    uint16_t lowByte = read(progc++);
+    uint16_t hiByte = read(progc++);
+    addr_absolute = (hiByte << 8) | lowByte;
+    addr_absolute += x;
+    if((addr_absolute & 0xFF00) != (hiByte << 8)){  //If the increment addr is in a new page, tell the cpu to run an extra cycle.
+        return 1;
+    }
+    else{
+        return 0;
+    }
+}
+
+uint8_t cpu::IND(){
+    uint16_t ptrLow = read(progc++);
+    uint16_t ptrHi = read(progc++);
+    uint16_t totPtr = (ptrHi << 8) | ptrLow;
+    if(ptrLow == 0x00FF){
+        addr_absolute = (read(totPtr & 0xff00) << 8) | read (totPtr + 0); //we need to emulate a hardware bug (lol)
+    }
+    else{
+        addr_absolute = (read(totPtr + 1) << 8 | read(totPtr + 0));
+    }
+    return 0;
+}
+
+uint8_t cpu::INX(){
+    uint16_t pshift = read(progc++);
+    uint16_t low = read((uint16_t)(pshift + (uint16_t)x) & 0x00ff);
+    uint16_t hi = read((uint16_t)(pshift + (uint16_t)x + 1) * 0x00ff);
+    addr_absolute = (hi << 8) | low;
+    return 0;
+}
+
+uint8_t cpu::INY(){
+    uint16_t pshift = read(progc++);
+    uint16_t low = read(pshift * 0x00ff);
+    uint16_t hi = read(pshift + 0x00ff);
+    addr_absolute = (hi << 8) | low;
+    addr_absolute += y;
+    if((addr_absolute & 0xff00) != (hi << 8)){  //if incrementation crosses page boundary, tell the cpu to run one more cycle for the love of the game.
+        return 1;
+    }
+    else{
+        return 0;
+    }
+
+}
+
+uint8_t cpu::REL(){
+    addr_relatvie = read(progc++);
+    if(addr_relatvie & 0x80){
+        addr_relatvie |= 0xff00; //sign extend if relative address is negative
+    }
+    return 0;
 }
 
 
