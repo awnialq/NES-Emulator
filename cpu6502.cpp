@@ -44,11 +44,57 @@ void cpu::clock(){
 }
 
 void cpu::reset(){
+    addr_absolute = 0xFFFC; //the addresss that the game programmer sets to be the starting address of the software
+    uint16_t low = read(addr_absolute); //get the lower half of the address from the memory location @ addr_absolute
+    uint16_t hi = read(addr_absolute + 1); //get the higher half of the address from the memory location @ addr_absolute
+    progc = (hi << 8) | low;
     accum = 0;
     x = 0;
     y = 0;
     stackp = 0xFD;  //the very first address on the stack of the cpu
     status = 0x00 | U;
+    addr_absolute = 0x0000;
+    addr_relatvie = 0x0000;
+    fetched = 0x00;
+    cycles = 8; //interrupts take a while so we will use 8 to represent how "long" it takes for the interrupt to execute
+}
+
+void cpu::interruptReq(){
+    if(getFlag(I) == 0){
+        write(0x0100 + stackp, (progc >> 8));//write the upper half of progc first then the bottom half as when you increment you will get the addr reversed.
+        stackp--;
+        write(0x0100 + stackp, progc);//write the bottom half of progc second
+        stackp--;
+        //Before pushing status edit the values in the status register to be post interrupt req
+        setFlag(B, false);
+        setFlag(U, true);
+        setFlag(I, true);
+        write(0x0100 + stackp, status);//write the status register to the stack (it is already 8 bits so we don't have to do any funny stuff)
+        stackp--;
+        addr_absolute = 0xfffe; //hard coded value that tells you where the new value of the progc should be
+        uint16_t hi = read(addr_absolute);
+        uint16_t lo = read(addr_absolute + 1);
+        progc = (hi << 8) | lo;
+        cycles = 7; //same reason why we did what we did in reset.
+    }
+}
+
+void cpu::nonMskInter(){    //does the same as interruptReq but can't be stopped
+    write(0x0100 + stackp, (progc >> 8));//write the upper half of progc first then the bottom half as when you increment you will get the addr reversed.
+    stackp--;
+    write(0x0100 + stackp, progc);//write the bottom half of progc second
+    stackp--;
+    //Before pushing status edit the values in the status register to be post interrupt req
+    setFlag(B, false);
+    setFlag(U, true);
+    setFlag(I, true);
+    write(0x0100 + stackp, status);//write the status register to the stack (it is already 8 bits so we don't have to do any funny stuff)
+    stackp--;
+    addr_absolute = 0xfffa; //hard coded value that tells you where the new value of the progc should be
+    uint16_t hi = read(addr_absolute);
+    uint16_t lo = read(addr_absolute + 1);
+    progc = (hi << 8) | lo;
+    cycles = 8; //same reason why we did what we did in reset.
 }
 
 // Implicit Addressing Mode
