@@ -43,6 +43,14 @@ void cpu::clock(){
     cycles--;
 }
 
+void cpu::reset(){
+    accum = 0;
+    x = 0;
+    y = 0;
+    stackp = 0xFD;  //the very first address on the stack of the cpu
+    status = 0x00 | U;
+}
+
 // Implicit Addressing Mode
 uint8_t cpu::IMP() {
     // Use the accumulator to store the fetched dat
@@ -145,6 +153,29 @@ uint8_t cpu::REL(){
 }
 
 //Instructions
+
+uint8_t cpu::ADC(){
+    fetch();
+    uint16_t temp = (uint16_t)accum + (uint16_t)fetched + (uint16_t)getFlag(C); //a temporary 16 bit value to allow us to easily modify the carry flag and/or overflow flag
+    setFlag(C, temp > 255); //value overflows if it is larger than 255 in the 16 bit variable
+    setFlag(Z, ((temp & 0x00ff) == 0));
+    setFlag(N, temp & 0x0080);
+    setFlag(V, (~((uint16_t)accum ^ (uint16_t)fetched) & ((uint16_t)accum ^ (uint16_t)temp)) & 0x0080);
+    accum = temp & 0x00ff;
+    return 1;
+}
+
+uint8_t cpu::SBC(){
+    fetch();
+    uint16_t negatedFetch = (uint16_t)fetched ^ 0x00ff;
+    uint16_t temp = (uint16_t)accum + negatedFetch + (uint16_t)getFlag(C); //a temporary 16 bit value to allow us to easily modify the carry flag and/or overflow flag
+    setFlag(C, temp > 255); //value overflows if it is larger than 255 in the 16 bit variable
+    setFlag(Z, ((temp & 0x00ff) == 0));
+    setFlag(N, temp & 0x0080);
+    setFlag(V, (~((uint16_t)accum ^ (uint16_t)negatedFetch) & ((uint16_t)accum ^ (uint16_t)temp)) & 0x0080);
+    accum = temp & 0x00ff;
+    return 1;
+}
 
 uint8_t cpu::AND(){
     fetch();
@@ -258,6 +289,26 @@ uint8_t cpu::BVC(){
     return 0;
 }
 
+uint8_t cpu::CLC(){
+    setFlag(C, false);
+    return 0;
+}
+
+uint8_t cpu::CLD(){
+    setFlag(D, false);
+    return 0;
+}
+
+uint8_t cpu::CLI(){
+    setFlag(I, false);
+    return 0;
+}
+
+uint8_t cpu::CLV(){
+    setFlag(V, false);
+    return 0;
+}
+
 uint8_t cpu::NOP(){ //No operation instruction
     return 1;
 }
@@ -265,8 +316,8 @@ uint8_t cpu::NOP(){ //No operation instruction
 uint8_t cpu::PHA(){ //Push accumulator onto the stack.
     bus->write(0x0100 + stackp, accum);
     stackp--;
+    return 0;
 }
-
 
 
 uint8_t cpu::JMP(){
@@ -283,7 +334,7 @@ uint8_t cpu::PHP(){
 
 uint8_t cpu::PLA(){
     stackp++;
-    accum = bus->read(stackp, false);
+    accum = read(0x0100 + stackp);
     if(accum == 0x00){
         setFlag(Z,0);
     }
