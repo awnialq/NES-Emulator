@@ -20,7 +20,7 @@ uint8_t cpu::fetch(){
     if(!(lookup[opcode].addrmode == &cpu::IMP)){
         fetched = read(addr_absolute);
     }
-    return 0;
+    return fetched;
 }
 
 uint8_t cpu::read(uint16_t addr){
@@ -35,8 +35,9 @@ void cpu::clock(){
         opcode = read(progc++);
         cycles = lookup[opcode].cycles; //Gets the # of cycles that given operation needs to execute. *BEST CASE SCENARIO*
 
-        (this->*lookup[opcode].addrmode)();
-        (this->*lookup[opcode].operate)();
+        uint8_t addCycleAddr = (this->*lookup[opcode].addrmode)();
+        uint8_t addCycleOp = (this->*lookup[opcode].operate)();
+        cycles += (addCycleAddr & addCycleOp);
     }
     
     cycles--;
@@ -153,20 +154,112 @@ uint8_t cpu::AND(){
     return 1;
 }
 
-uint8_t cpu::NOP(){ //No operation instruction
-    return 1;
-}
-
-uint8_t cpu::BPL(){ //Branch if positive insruction implementation
-    if(getFlag(FLAGS6502::N) == 0){
+uint8_t cpu::BCS(){
+    if(getFlag(C) == 0){
         cycles++;
-        addr_absolute = progc++;
-        if((addr_absolute & 0xFF00) != (progc & 0xFF00)){
+        addr_absolute = progc + addr_relatvie;
+
+        if((addr_absolute & 0xff00) != (progc & 0xff00)){
             cycles++;
         }
         progc = addr_absolute;
     }
     return 0;
+}
+
+uint8_t cpu::BCS(){
+    if(getFlag(C) == 1){
+        cycles++;
+        addr_absolute = progc + addr_relatvie;
+
+        if((addr_absolute & 0xff00) != (progc & 0xff00)){
+            cycles++;
+        }
+        progc = addr_absolute;
+    }
+    return 0;
+}
+
+uint8_t cpu::BEQ(){
+    if(getFlag(Z) == 1){
+        cycles++;
+        addr_absolute = progc + addr_relatvie;
+
+        if((addr_absolute & 0xff00) != (progc & 0xff00)){
+            cycles++;
+        }
+        progc = addr_absolute;
+    }
+    return 0;
+}
+
+uint8_t cpu::BMI(){
+    if(getFlag(N) == 1){
+        cycles++;
+        addr_absolute = progc + addr_relatvie;
+
+        if((addr_absolute & 0xff00) != (progc & 0xff00)){
+            cycles++;
+        }
+        progc = addr_absolute;
+    }
+    return 0;
+}
+
+uint8_t cpu::BNE(){
+    if(getFlag(Z) == 0){
+        cycles++;
+        addr_absolute = progc + addr_relatvie;
+
+        if((addr_absolute & 0xff00) != (progc & 0xff00)){
+            cycles++;
+        }
+        progc = addr_absolute;
+    }
+    return 0;
+}
+
+uint8_t cpu::BNE(){
+    if(getFlag(N) == 0){
+        cycles++;
+        addr_absolute = progc + addr_relatvie;
+
+        if((addr_absolute & 0xff00) != (progc & 0xff00)){
+            cycles++;
+        }
+        progc = addr_absolute;
+    }
+    return 0;
+}
+
+uint8_t cpu::BVC(){
+    if(getFlag(V) == 0){
+        cycles++;
+        addr_absolute = progc + addr_relatvie;
+
+        if((addr_absolute & 0xff00) != (progc & 0xff00)){
+            cycles++;
+        }
+        progc = addr_absolute;
+    }
+    return 0;
+}
+
+uint8_t cpu::BVC(){
+    if(getFlag(V) == 1){
+        cycles++;
+        addr_absolute = progc + addr_relatvie;
+
+        if((addr_absolute & 0xff00) != (progc & 0xff00)){
+            cycles++;
+        }
+        progc = addr_absolute;
+    }
+    return 0;
+}
+
+uint8_t cpu::NOP(){ //No operation instruction
+    return 1;
 }
 
 uint8_t cpu::PHA(){ //Push accumulator onto the stack.
