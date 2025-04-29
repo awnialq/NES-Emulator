@@ -432,14 +432,17 @@ uint8_t cpu::BRK(){ //Break instruction implementation
 }
 
 uint8_t cpu::RTI(){
-    uint8_t temp = read(stackp--);
-    setFlag(N, (temp >> 7));
-    setFlag(V, ((temp >> 6) & 0x01));
-    setFlag(D, ((temp >> 3) & 0x01));
-    setFlag(I, ((temp >> 2) & 0x01));
-    setFlag(Z, ((temp >> 1) & 0x01));
-    setFlag(C, (temp & 0x01));
-    temp = read(stackp--);
+    //restore status register
+    stackp++;
+    status = read(0x0100 + stackp);
+    status &= ~B;
+    status &= ~U;
+    //restore progc
+    stackp++;
+    progc = read(0x0100 + stackp);
+    stackp++;
+    progc |= (read(0x0100 + stackp) << 8);
+    return 0;
 }
 
 uint8_t cpu::RTS(){
