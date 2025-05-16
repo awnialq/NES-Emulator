@@ -6,8 +6,8 @@
 
 struct cartHeader{
     char id[4];
-    uint8_t prgSize;
-    uint8_t chrSize;
+    uint8_t prgSize;    //program size
+    uint8_t chrSize;    //character memory size
 };
 
 class cartridge{
