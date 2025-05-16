@@ -32,3 +32,22 @@ uint8_t Bus::cpuRead(uint16_t addr, bool readOnly){
 
     return data;
 }
+
+void Bus::cpuWrite(uint16_t addr, uint8_t data){
+
+}
+uint8_t Bus::cpuRead(uint16_t addr, bool readOnly = false){
+
+}
+
+void Bus::insertCart(const std::shared_ptr<cartridge>& cartridge){
+    this->game = cartridge;
+    ppu.connectCart(cartridge);
+}
+void Bus::reset(){
+    cpu.reset();
+    clockCntr = 0;
+}
+void Bus::clock(){
+
+}

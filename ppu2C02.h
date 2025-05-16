@@ -1,5 +1,7 @@
 #pragma once
 #include <cstdint>
+#include <iostream>
+#include "cartridge.h"
 
 class ppu2C02{
     public:
@@ -13,4 +15,9 @@ class ppu2C02{
         //Connection to PPU bus
         uint8_t ppuRead(uint16_t addr, bool readOnly);
         void ppuWrite(uint16_t addr, uint8_t data);
+
+        void connectCart(const std::shared_ptr<cartridge>& cart);
+        void clock();
+    private:
+        std::shared_ptr<cartridge> game;
 };
