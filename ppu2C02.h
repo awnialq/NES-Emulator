@@ -1,0 +1,16 @@
+#pragma once
+#include <cstdint>
+
+class ppu2C02{
+    public:
+        ppu2C02();
+        ~ppu2C02();
+
+        //Connection to main bus
+        uint8_t cpuRead(uint16_t addr, bool readOnly);
+        void cpuWrite(uint16_t addr, uint8_t data);
+
+        //Connection to PPU bus
+        uint8_t ppuRead(uint16_t addr, bool readOnly);
+        void ppuWrite(uint16_t addr, uint8_t data);
+};
