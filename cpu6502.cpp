@@ -24,11 +24,11 @@ uint8_t cpu::fetch(){
 }
 
 uint8_t cpu::read(uint16_t addr){
-    return bus->read(addr, false);
+    return bus->cpuRead(addr, false);
 }
 
 void cpu::write(uint16_t addr, uint8_t dest){
-    bus->write(addr, dest);
+    bus->cpuRead(addr, dest);
 }
 void cpu::clock(){
     if(cycles == 0){
@@ -355,13 +355,13 @@ uint8_t cpu::CLV(){
     return 0;
 }
 
-uint8_t cpu::NOP(){ //No operation instructionx
+uint8_t cpu::NOP(){ //No operation instruction
 
     return 1;
 }
 
 uint8_t cpu::PHA(){ //Push accumulator onto the stack.
-    bus->write(0x0100 + stackp, accum);
+    bus->cpuWrite(0x0100 + stackp, accum);
     stackp--;
     return 0;
 }
@@ -369,6 +369,7 @@ uint8_t cpu::PHA(){ //Push accumulator onto the stack.
 
 uint8_t cpu::JMP(){
     progc = addr_absolute;
+    return 0;
 }
 
 uint8_t cpu::PHP(){
@@ -401,10 +402,17 @@ uint8_t cpu::PLP(){
 
 uint8_t cpu::ROR(){
     fetch();
-    uint8_t temp = fetched & 0x01;
-    temp = temp << 7;
-    fetched = fetched >> 1;
-    fetched = fetched & temp;
+    uint16_t temp = (uint16_t)(getFlag(C) << 7) | (fetched >> 1); // prepare the rotated value
+    setFlag(C,fetched & 0x01);
+    setFlag(Z, (temp & 0x00ff) == 0x00);
+    setFlag(N, temp & 0x0080);   //Checks the value of the msb to check sign
+    if(lookup[opcode].addrmode == &cpu6502::IMP){   //if the addressing mode is applied, act on the accumulator instead
+        accum = temp & 0x00ff;
+    }
+    else{
+        write(addr_absolute, temp & 0x00ff);
+    }
+    return 0;
 }
 
 uint8_t cpu::ROL(){
@@ -456,11 +464,6 @@ uint8_t cpu::RTS(){
     stackp++;
     progc |= (uint16_t)read(0x0100 + stackp) << 8; //get the high byte of the adddress
     return 0;
-}
-
-uint8_t cpu::SBC(){//Subtract memory value from accumulator with Borrow (aka carry)
-    fetch();
-    accum = accum - fetched - (uint16_t)~getFlag(C);
 }
 
 uint8_t cpu::SEC(){ //Set carry flag to high
