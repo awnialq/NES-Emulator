@@ -355,7 +355,8 @@ uint8_t cpu::CLV(){
     return 0;
 }
 
-uint8_t cpu::NOP(){ //No operation instruction
+uint8_t cpu::NOP(){ //No operation instructionx
+
     return 1;
 }
 
@@ -445,11 +446,15 @@ uint8_t cpu::RTI(){
     return 0;
 }
 
+/*
+    Since the bus is only 8-bits wide you are only able to read the hi or lo seperately.
+*/
+
 uint8_t cpu::RTS(){
-    uint8_t popped = read(stackp);
-    stackp -= 0x1;
-    popped++;
-    progc = popped;
+    stackp++;
+    progc = (uint16_t)read(0x0100 + stackp); //stack lives on the first page/ get the low byte of the address.
+    stackp++;
+    progc |= (uint16_t)read(0x0100 + stackp) << 8; //get the high byte of the adddress
     return 0;
 }
 
@@ -471,15 +476,15 @@ uint8_t cpu::SEI(){ //Set interrupt disable status to high
 }
 
 uint8_t cpu::STA(){ //Store accumulator in Memory
-    bus->write(addr_absolute, accum);
+    bus->cpuWrite(addr_absolute, accum);
 }
 
 uint8_t cpu::STX(){ //Store register X @ a memory location
-    bus->write(addr_absolute, x);
+    bus->cpuWrite(addr_absolute, x);
 }
 
 uint8_t cpu::STY(){ //Store register Y @ a memory location
-    bus->write(addr_absolute, y);
+    bus->cpuWrite(addr_absolute, y);
 }
 
 uint8_t cpu::TAX(){ //Transfer accumulator to X
