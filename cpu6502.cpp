@@ -244,7 +244,7 @@ uint8_t cpu::BCS(){
     return 0;
 }
 
-uint8_t cpu::BCS(){
+uint8_t cpu::BCS(){ //Better call saul. *badum tshhhhhhhhhhhhhhh*
     if(getFlag(C) == 1){
         cycles++;
         addr_absolute = progc + addr_relatvie;
@@ -374,10 +374,12 @@ uint8_t cpu::JMP(){
 
 uint8_t cpu::PHP(){
     uint8_t data;
-    data = getFlag(N) | getFlag(V) | (1 << 5) 
-    | (1 << 4) | getFlag(D) | getFlag(I) 
-    | getFlag(Z) | getFlag(C);
-    write(stackp--,data);
+    data = status | 0b00110000;
+    setFlag(B, 0);
+    setFlag(U, 0);
+    write(stackp + 0x0100,data);
+    stackp--;
+    return 0;
 }
 
 uint8_t cpu::PLA(){
@@ -387,17 +389,15 @@ uint8_t cpu::PLA(){
         setFlag(Z,0);
     }
     setFlag(N,accum >> 7);
+    return 0;
 }
 
 uint8_t cpu::PLP(){
     stackp++;
     uint8_t temp = read(stackp);
-    setFlag(N, (temp >> 7));
-    setFlag(V, ((temp >> 6) & 0x01));
-    setFlag(D, ((temp >> 3) & 0x01));
-    setFlag(I, ((temp >> 2) & 0x01));
-    setFlag(Z, ((temp >> 1) & 0x01));
-    setFlag(C, (temp & 0x01));
+    status = temp;
+    setFlag(U, 1);
+    return 0;
 }
 
 uint8_t cpu::ROR(){
