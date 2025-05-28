@@ -417,10 +417,17 @@ uint8_t cpu::ROR(){
 
 uint8_t cpu::ROL(){
     fetch();
-    uint8_t temp = fetched & 0x80;
-    temp = temp >> 7;
-    fetched = fetched << 1;
-    fetched = fetched & temp;
+    uint8_t temp = (uint16_t)(fetched << 1) | getFlag(C);
+    setFlag(C, temp & 0x0100);
+    setFlag(Z, ((uint8_t)temp == 0x00));
+    setFlag(N, temp & 0x0080);
+    if(lookup[opcode].addrmode == &cpu::IMP){
+        accum = (uint8_t)temp;
+    }
+    else{
+        write(addr_absolute, (uint8_t)temp);
+    }
+    return 0;
 }
 
 uint8_t cpu::LSR(){ //Logical Shift Right implementation
