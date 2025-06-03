@@ -19,6 +19,7 @@ void Bus::cpuWrite(uint16_t addr, uint8_t data){
         ppu.cpuWrite(addr & 0x0007, data);  //implement addr mirroring
     }
 }
+
 uint8_t Bus::cpuRead(uint16_t addr, bool readOnly){
     uint8_t data = 0x00;
     if(addr >= 0x0000 && addr <= 0x1FFF){
@@ -33,13 +34,6 @@ uint8_t Bus::cpuRead(uint16_t addr, bool readOnly){
     return data;
 }
 
-void Bus::cpuWrite(uint16_t addr, uint8_t data){
-
-}
-uint8_t Bus::cpuRead(uint16_t addr, bool readOnly = false){
-
-}
-
 void Bus::insertCart(const std::shared_ptr<cartridge>& cartridge){
     this->game = cartridge;
     ppu.connectCart(cartridge);
@@ -49,5 +43,9 @@ void Bus::reset(){
     clockCntr = 0;
 }
 void Bus::clock(){
-
+    ppu.clock();
+    if(clockCntr % 3 == 0){
+        cpu.clock();
+    }
+    clockCntr++;
 }
