@@ -20,11 +20,5 @@ class cartridge{
         std::vector<uint8_t> chrMem;    //Character memory
 
         uint8_t mapperID = 0;
-        uint8_t numPrgBanks = 0;
-        uint8_t numChrBanks = 0;
-    public:
-        void loadRom();
-    private:
-        void defHeader();
-        void confirmRom();
+        struct cartHeader header;
 };
