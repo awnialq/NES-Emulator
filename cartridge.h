@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <memory>
 
 struct cartHeader{
     char id[4];

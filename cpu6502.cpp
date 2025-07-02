@@ -246,19 +246,6 @@ uint8_t cpu::AND(){
     return 1;
 }
 
-uint8_t cpu::BCS(){
-    if(getFlag(C) == 0){
-        cycles++;
-        addr_absolute = progc + addr_relatvie;
-
-        if((addr_absolute & 0xff00) != (progc & 0xff00)){
-            cycles++;
-        }
-        progc = addr_absolute;
-    }
-    return 0;
-}
-
 uint8_t cpu::BCS(){ //Better call saul. *badum tshhhhhhhhhhhhhhh*
     if(getFlag(C) == 1){
         cycles++;
@@ -311,7 +298,7 @@ uint8_t cpu::BNE(){
     return 0;
 }
 
-uint8_t cpu::BNE(){
+uint8_t cpu::BPL(){
     if(getFlag(N) == 0){
         cycles++;
         addr_absolute = progc + addr_relatvie;
@@ -337,7 +324,7 @@ uint8_t cpu::BVC(){
     return 0;
 }
 
-uint8_t cpu::BVC(){
+uint8_t cpu::BVS(){
     if(getFlag(V) == 1){
         cycles++;
         addr_absolute = progc + addr_relatvie;
@@ -421,7 +408,7 @@ uint8_t cpu::ROR(){
     setFlag(C,fetched & 0x01);
     setFlag(Z, (temp & 0x00ff) == 0x00);
     setFlag(N, temp & 0x0080);   //Checks the value of the msb to check sign
-    if(lookup[opcode].addrmode == &cpu6502::IMP){   //if the addressing mode is applied, act on the accumulator instead
+    if(lookup[opcode].addrmode == &cpu::IMP){   //if the addressing mode is applied, act on the accumulator instead
         accum = temp & 0x00ff;
     }
     else{
@@ -455,11 +442,13 @@ uint8_t cpu::LSR(){ //Logical Shift Right implementation
     if(fetched & 0x80){
         setFlag(N, true);
     }
+    return 0;
 }
 
 uint8_t cpu::BRK(){ //Break instruction implementation
     progc++;
     setFlag(I, true);
+    return 0;
 }
 
 uint8_t cpu::RTI(){
@@ -540,11 +529,6 @@ uint8_t cpu::TXA(){ //Transfer register X to accumulator
 
 uint8_t cpu::TXS(){ //Transfer X to Stack pointer register
     stackp = x;
-    return 0;
-}
-
-uint8_t cpu::TXA(){ //Transfer Index X to Accumulator
-    accum = x;
     return 0;
 }
 

@@ -4,6 +4,7 @@
 #include "cartridge.h"
 #include "ppu2C02.h"
 #include <array>
+#include <memory>
 
 class Bus{
     public:

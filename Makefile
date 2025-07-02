@@ -1,7 +1,7 @@
 # Compiler and flags
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -O2
-LDFLAGS = -lSDL2 -lSDL2_ttf
+LDFLAGS = 
 
 # Directories
 SRCDIR = .
