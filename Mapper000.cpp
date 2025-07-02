@@ -30,7 +30,7 @@ bool Mapper000::modPpuRead(uint16_t addr, uint32_t &mappedAddr){
 }
 
 bool Mapper000::modPpuWrite(uint16_t addr, uint32_t &mappedAddr){
-    if(addr >= 0x0000 && 0x1FFF){
+    if((addr >= 0x0000 && addr <= 0x1FFF) && numChrBanks == 0){
         mappedAddr = addr;
         return true;
     }
