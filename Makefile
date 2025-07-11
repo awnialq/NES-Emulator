@@ -1,52 +1,19 @@
-# Compiler and flags
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -O2
-LDFLAGS = 
 
-# Directories
-SRCDIR = .
-OBJDIR = obj
+CPU_SOURCES = cpu6502.cpp
+CPU_OBJECTS = $(CPU_SOURCES:.cpp=.o)
+CPU_TARGET = cpu6502-test
 
-# Source files
-SOURCES = $(wildcard $(SRCDIR)/*.cpp)
-OBJECTS = $(SOURCES:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
+all: $(CPU_TARGET)
 
-# Target executable
-TARGET = nes-emulator
-
-# Default target
-all: $(TARGET)
-
-# Create target executable
-$(TARGET): $(OBJECTS)
-	$(CXX) $(OBJECTS) -o $@ $(LDFLAGS)
-
-# Create object files
-$(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
+$(CPU_TARGET): $(CPU_OBJECTS)
+	$(CXX) $(CPU_OBJECTS) -o $@
+	
+%.o: %.cpp cpu6502.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Create obj directory if it doesn't exist
-$(OBJDIR):
-	mkdir -p $(OBJDIR)
-
-# Clean build files
 clean:
-	rm -rf $(OBJDIR) $(TARGET)
+	rm -f $(CPU_OBJECTS) $(CPU_TARGET)
 
-# Rebuild everything
-rebuild: clean all
-
-# Install dependencies (Ubuntu/Debian)
-install-deps:
-	sudo apt-get update
-	sudo apt-get install libsdl2-dev libsdl2-ttf-dev
-
-# Debug build
-debug: CXXFLAGS += -g -DDEBUG
-debug: $(TARGET)
-
-# Release build
-release: CXXFLAGS += -O3 -DNDEBUG
-release: $(TARGET)
-
-.PHONY: all clean rebuild install-deps debug release
+.PHONY: all clean
