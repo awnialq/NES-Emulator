@@ -1,5 +1,6 @@
 #include "cpu6502.h"
 #include "Bus.h"
+#include <cstdint>
 using cpu = cpu6502; //Creates a temporary naming variable to make the table more simple.
 
 cpu::cpu6502(){
@@ -58,6 +59,17 @@ void cpu::clock(){
     cycles--;
 }
 
+void cpu::setFlag(FLAGS6502 f, bool v){
+    v ? status |= f : status &= ~f;
+}
+
+uint8_t cpu::getFlag(FLAGS6502 f){
+    if((status & f) != 0){
+        return 1;
+    }
+    return 0;
+}
+
 void cpu::reset(){
     addr_absolute = 0xFFFC; //the addresss that the game programmer sets to be the starting address of the software
     uint16_t low = read(addr_absolute); //get the lower half of the address from the memory location @ addr_absolute
@@ -95,7 +107,7 @@ void cpu::interruptReq(){
 }
 
 void cpu::nonMskInter(){    //does the same as interruptReq but can't be stopped
-    write(0x0100 + stackp, (progc >> 8));//write the upper half of progc first then the bottom half as when you increment you will get the addr reversed.
+    write(0x0100 + stackp, (progc >> 8));//write the upper half of progc first then the bottom half aBs when you increment you will get the addr reversed.
     stackp--;
     write(0x0100 + stackp, progc);//write the bottom half of progc second
     stackp--;
@@ -214,6 +226,10 @@ uint8_t cpu::REL(){
 }
 
 //Instructions
+
+uint8_t cpu::DUM(){
+    return 1;
+}
 
 uint8_t cpu::ADC(){
     fetch();
