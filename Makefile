@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -O2
 
-CPU_SOURCES = cpu6502.cpp Bus.cpp
+CPU_SOURCES = cpu6502.cpp Bus.cpp main.cpp
 CPU_OBJECTS = $(CPU_SOURCES:.cpp=.o)
 CPU_TARGET = cpu6502-test
 
