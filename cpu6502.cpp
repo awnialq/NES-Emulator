@@ -181,6 +181,19 @@ uint8_t cpu::ABX(){
     }
 }
 
+uint8_t cpu::ABY(){
+    uint16_t lowByte = read(progc++);
+    uint16_t hiByte = read(progc++);
+    addr_absolute = (hiByte << 8) | lowByte;
+    addr_absolute += y;
+    if((addr_absolute & 0xFF00) != (hiByte << 8)){  //If the increment addr is in a new page, tell the cpu to run an extra cycle.
+        return 1;
+    }
+    else{
+        return 0;
+    }
+}
+
 uint8_t cpu::IND(){
     uint16_t ptrLow = read(progc++);
     uint16_t ptrHi = read(progc++);
@@ -231,6 +244,13 @@ uint8_t cpu::DUM(){
     return 1;
 }
 
+uint8_t cpu::DEY(){
+    y--;
+    setFlag(Z, y == 0x00);
+    setFlag(N, (y >> 7 != 0));
+    return 0;
+}
+
 uint8_t cpu::ADC(){
     fetch();
     uint16_t temp = (uint16_t)accum + (uint16_t)fetched + (uint16_t)getFlag(C); //a temporary 16 bit value to allow us to easily modify the carry flag and/or overflow flag
@@ -240,6 +260,21 @@ uint8_t cpu::ADC(){
     setFlag(V, (~((uint16_t)accum ^ (uint16_t)fetched) & ((uint16_t)accum ^ (uint16_t)temp)) & 0x0080);
     accum = temp & 0x00ff;
     return 1;
+}
+
+uint8_t cpu::ASL(){
+    fetch();
+    setFlag(C, ((fetched & 0b10000000) != 0));
+    setFlag(N, ((fetched & 0b10000000) != 0));
+    fetched = fetched << 1;
+    setFlag(Z, fetched == 0x00);
+    if(lookup[opcode].addrmode == &cpu::IMP){
+        accum = fetched;
+    }
+    else{
+        write(addr_absolute, fetched);
+    }
+    return 0;
 }
 
 uint8_t cpu::SBC(){
@@ -373,6 +408,14 @@ uint8_t cpu::CLV(){
     return 0;
 }
 
+uint8_t cpu::ORA(){
+    fetch();
+    accum = accum | fetched;
+    setFlag(Z, accum == 0x00);
+    setFlag(N, (accum & 0b10000000) != 0);
+    return 1;
+}
+
 uint8_t cpu::NOP(){ //No operation instruction
 
     return 1;
@@ -386,6 +429,15 @@ uint8_t cpu::PHA(){ //Push accumulator onto the stack.
 
 
 uint8_t cpu::JMP(){
+    progc = addr_absolute;
+    return 0;
+}
+
+uint8_t cpu::JSR(){
+    progc--;
+    write(stackp + 0x0100, (progc >> 8));   //save upper half of the progc
+    stackp--;
+    write(stackp + 0x0100, progc & 0x00ff); //save lower half of the progc
     progc = addr_absolute;
     return 0;
 }
@@ -448,6 +500,15 @@ uint8_t cpu::ROL(){
     return 0;
 }
 
+uint8_t cpu::EOR(){ //exclusive or
+    fetch();
+    accum = accum ^ fetched;
+    setFlag(Z, accum == 0x00);
+    setFlag(N, (accum >> 7 != 0));
+
+    return 1;
+}
+
 uint8_t cpu::LSR(){ //Logical Shift Right implementation
     fetch();
     setFlag(C, fetched & 0x0001);
@@ -464,6 +525,15 @@ uint8_t cpu::LSR(){ //Logical Shift Right implementation
 uint8_t cpu::BRK(){ //Break instruction implementation
     progc++;
     setFlag(I, true);
+    return 0;
+}
+
+uint8_t cpu::BIT(){
+    fetch();
+    uint8_t temp = accum & fetched;
+    setFlag(Z, temp == 0x00);
+    setFlag(N, (fetched >> 7 != 0)); 
+    setFlag(V, ((fetched >> 6) & 0b0000010) != 0);
     return 0;
 }
 
