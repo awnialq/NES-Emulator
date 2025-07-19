@@ -522,6 +522,30 @@ uint8_t cpu::LSR(){ //Logical Shift Right implementation
     return 0;
 }
 
+uint8_t cpu::LDY(){
+    fetch();
+    y = fetched;
+    setFlag(Z, y == 0x00);
+    setFlag(N, (y >> 7) != 0);
+    return 1;
+}
+
+uint8_t cpu::LDA(){
+    fetch();
+    accum = fetched;
+    setFlag(Z, accum == 0);
+    setFlag(N, (accum >> 7) != 0);
+    return 1;
+}
+
+uint8_t cpu::LDX(){
+    fetch();
+    x = fetched;
+    setFlag(Z, x == 0);
+    setFlag(N, (x >> 7) != 0);
+    return 1;
+}
+
 uint8_t cpu::BRK(){ //Break instruction implementation
     progc++;
     setFlag(I, true);
