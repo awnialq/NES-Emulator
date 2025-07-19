@@ -2,6 +2,6 @@
 .*/
 *.exe
 *.json
-*.code-workspac
+*.code-workspace
 /obj/
 *.o

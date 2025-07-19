@@ -230,6 +230,14 @@ uint8_t cpu::INY(){
 
 }
 
+uint8_t cpu::INC(){
+    fetch();
+    write(addr_absolute, ++fetched);
+    setFlag(Z, fetched == 0x00);
+    setFlag(N, (fetched >> 7) != 0);
+    return 0;    
+}
+
 uint8_t cpu::REL(){
     addr_relatvie = read(progc++);
     if(addr_relatvie & 0x80){
@@ -248,6 +256,22 @@ uint8_t cpu::DEY(){
     y--;
     setFlag(Z, y == 0x00);
     setFlag(N, (y >> 7 != 0));
+    return 0;
+}
+
+uint8_t cpu::DEX(){
+    x--;
+    setFlag(Z, x == 0x00);
+    setFlag(N, (x >> 7 != 0));
+    return 0;
+}
+
+uint8_t cpu::DEC(){
+    fetch();
+    write(addr_absolute, --fetched);
+    setFlag(Z, fetched == 0);
+    setFlag(N, (fetched >> 7) != 0);
+    
     return 0;
 }
 
@@ -298,11 +322,19 @@ uint8_t cpu::AND(){
 }
 
 uint8_t cpu::BCC(){
-    
-    return 1;
+    if(getFlag(C) == 0){
+        cycles++;
+        addr_absolute = progc + addr_relatvie;
+
+        if((addr_absolute & 0xff00) != (progc & 0xff00)){
+            cycles++;
+        }
+        progc = addr_absolute;
+    }
+    return 0;
 }
 
-uint8_t cpu::BCS(){ //Better call saul. *badum tshhhhhhhhhhhhhhh*
+uint8_t cpu::BCS(){ 
     if(getFlag(C) == 1){
         cycles++;
         addr_absolute = progc + addr_relatvie;
