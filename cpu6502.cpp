@@ -297,6 +297,11 @@ uint8_t cpu::AND(){
     return 1;
 }
 
+uint8_t cpu::BCC(){
+    
+    return 1;
+}
+
 uint8_t cpu::BCS(){ //Better call saul. *badum tshhhhhhhhhhhhhhh*
     if(getFlag(C) == 1){
         cycles++;
@@ -408,6 +413,14 @@ uint8_t cpu::CLV(){
     return 0;
 }
 
+uint8_t cpu::CMP(){
+    fetch();
+    setFlag(C, accum >= fetched);
+    setFlag(Z, accum == fetched);
+    setFlag(N, accum < fetched);
+    return 1;
+}
+
 uint8_t cpu::ORA(){
     fetch();
     accum = accum | fetched;
@@ -467,6 +480,22 @@ uint8_t cpu::PLP(){
     uint8_t temp = read(stackp);
     status = temp;
     setFlag(U, 1);
+    return 0;
+}
+
+uint8_t cpu::CPY(){
+    fetch();
+    setFlag(C, y >= fetched);   //These are kinda lazy implementations instead of doing the subtraction like how the cpu would actuall do it
+    setFlag(Z, y == fetched);
+    setFlag(N, y < fetched);
+    return 0; 
+}
+
+uint8_t cpu::CPX(){
+    fetch();
+    setFlag(C, x >= fetched);
+    setFlag(Z, x == fetched);
+    setFlag(N, x < fetched);
     return 0;
 }
 
