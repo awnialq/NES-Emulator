@@ -1,6 +1,7 @@
 #include "cpu6502.h"
 #include "Bus.h"
 #include <cstdint>
+#include <string>
 using cpu = cpu6502; //Creates a temporary naming variable to make the table more simple.
 
 cpu::cpu6502(){
@@ -44,7 +45,7 @@ uint8_t cpu::read(uint16_t addr){
 }
 
 void cpu::write(uint16_t addr, uint8_t dest){
-    bus->cpuRead(addr, dest);
+    bus->cpuWrite(addr, dest);
 }
 void cpu::clock(){
     if(cycles == 0){
@@ -55,8 +56,13 @@ void cpu::clock(){
         uint8_t addCycleOp = (this->*lookup[opcode].operate)();
         cycles += (addCycleAddr & addCycleOp);
     }
-    
+    cpuStatusLog();
     cycles--;
+}
+
+std::string cpu::cpuStatusLog(){
+    return "Accum = " + std::to_string(this->accum) + " | X = " + std::to_string(this->x) + 
+    " | Y = " + std::to_string(this->y) + " | Stackp = ";
 }
 
 void cpu::setFlag(FLAGS6502 f, bool v){

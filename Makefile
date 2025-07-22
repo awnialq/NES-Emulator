@@ -7,7 +7,7 @@ else
 endif
 
 CXX       = g++
-CXXFLAGS  = -std=c++17 -Wall -Wextra -O2 -ISDL3/include -I.
+CXXFLAGS  = -std=c++20 -Wall -Wextra -O2 -ISDL3/include -I.
 LDFLAGS   = -LSDL3/lib -lmingw32 -lSDL3
 
 CPU_SOURCES = cpu6502.cpp Bus.cpp main.cpp

@@ -34,6 +34,7 @@ class cpu6502{
         void reset();
         void interruptReq(); //Can be ignored with the Disable Interruptions Flag is active
         void nonMskInter(); //CAN NOT be ignored
+        std::string cpuStatusLog();
 
         uint8_t fetch();
         uint8_t fetched = 0x00;
