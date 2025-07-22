@@ -1,19 +1,29 @@
-CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra -O2 $(shell sdl2-config --cflags)
+ifeq ($(OS),Windows_NT)
+    RM = del /F /Q
+    NULLDEV = NUL
+else
+    RM = rm -f
+    NULLDEV = /dev/null
+endif
+
+CXX       = g++
+CXXFLAGS  = -std=c++17 -Wall -Wextra -O2 -ISDL3/include -I.
+LDFLAGS   = -LSDL3/lib -lmingw32 -lSDL3
 
 CPU_SOURCES = cpu6502.cpp Bus.cpp main.cpp
 CPU_OBJECTS = $(CPU_SOURCES:.cpp=.o)
-CPU_TARGET = cpu6502-test
+CPU_TARGET  = test
 
 all: $(CPU_TARGET)
 
 $(CPU_TARGET): $(CPU_OBJECTS)
-	$(CXX) $(CPU_OBJECTS) -o $@ $(shell sdl2-config --libs)
+	$(CXX) $(CPU_OBJECTS) -o $@ $(LDFLAGS)
+	-$(RM) $(CPU_OBJECTS) > $(NULLDEV) 2>&1
 
 %.o: %.cpp cpu6502.h Bus.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(CPU_OBJECTS) $(CPU_TARGET)
+	-$(RM) $(CPU_OBJECTS) $(CPU_TARGET) > $(NULLDEV) 2>&1
 
 .PHONY: all clean

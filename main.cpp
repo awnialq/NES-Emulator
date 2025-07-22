@@ -1,27 +1,55 @@
 #include "cpu6502.h"
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <iostream>
 
-int main(){
-if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
+int main(int argc, char* argv[]) {
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        SDL_Log("SDL could not initialize! SDL error: %s\n", SDL_GetError());
         return 1;
     }
 
-    SDL_Window* win = SDL_CreateWindow("Hello SDL", 100, 100, 640, 480, SDL_WINDOW_SHOWN);
-    if (!win) {
-        std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
+    SDL_Window* window = SDL_CreateWindow(
+        "Test Window",
+        640,
+        480,
+        0 // No special flags
+    );
+
+    if (window == nullptr) {
+        SDL_Log("Window could not be created! SDL error: %s\n", SDL_GetError());
         SDL_Quit();
         return 1;
     }
 
-    SDL_Delay(2000);  // Display window for 2 seconds
-    SDL_DestroyWindow(win);
+    // Create a renderer
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, nullptr);
+    if (!renderer) {
+        SDL_Log("Renderer could not be created! SDL error: %s\n", SDL_GetError());
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 1;
+    }
+
+    // Main loop
+    bool isRunning = true;
+    SDL_Event event;
+    while (isRunning) {
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_EVENT_QUIT) {
+                isRunning = false;
+            }
+        }
+
+        // Set draw color to cornflower blue
+        SDL_SetRenderDrawColor(renderer, 100, 149, 237, 255);
+        SDL_RenderClear(renderer);
+        SDL_RenderPresent(renderer);
+        SDL_Delay(16); // ~60 FPS
+    }
+
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
     SDL_Quit();
     return 0;
-    /*
-    cpu6502 *cpu = new cpu6502();
-    cpu -> ~cpu6502();
-    */
 }
 
