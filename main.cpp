@@ -1,8 +1,14 @@
 #include "cpu6502.h"
 #include <SDL3/SDL.h>
 #include <iostream>
+#include <ostream>
 
 int main(int argc, char* argv[]) {
+
+    cpu6502 cpu = cpu6502();
+    std::string log = cpu.cpuStatusLog();
+    std::cout << log << std::endl;
+
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         SDL_Log("SDL could not initialize! SDL error: %s\n", SDL_GetError());
         return 1;
