@@ -65,8 +65,8 @@ void cpu::clock(){
 }
 
 std::string cpu::cpuStatusLog(){
-    return "Accum: " + std::to_string(this->accum) + " | X: " + std::to_string(this->x) + 
-    " | Y: " + std::to_string(this->y) + " | Stackp: " + std::format("{:#04x}", this->stackp) + " | Progc: " + std::format("{:#06x}", this->progc)
+    return "Accum: " + std::format("{:#04x}", this->accum) + " | X: " + std::format("{:#04x}", this->x) + 
+    " | Y: " + std::format("{:#04x}", this->y) + " | Stackp: " + std::format("{:#04x}", this->stackp) + " | Progc: " + std::format("{:#06x}", this->progc)
     + "\nStatus: \n\tC: " + std::to_string((this->status & 0x01)) + "\n\tZ: " + std::to_string(((this->status >> 1) & 0x01))
     + "\n\tI: " + std::to_string(((this->status >> 2) & 0x01)) + "\n\tB: " + std::to_string(((this->status >> 4) & 0x01))
     + "\n\tV: " + std::to_string(((this->status >> 6) & 0x01)) + "\n\tN: " + std::to_string(((this->status >> 7) & 0x01));

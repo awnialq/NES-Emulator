@@ -6,8 +6,12 @@
 
 Bus::Bus(){
     for(auto &i : cpuMem){i = 0x00;}
-    cpuMem[0] = 0xA9;
-    cpuMem[1] = 0xFF;
+    cpuMem[0] = 0xA2;
+    cpuMem[1] = 0x00;
+    cpuMem[2] = 0xA2;
+    cpuMem[3] = 0x10;
+    cpuMem[4] = 0xA2;
+    cpuMem[5] = 0xFF;
 }
 
 Bus::~Bus(){
@@ -16,7 +20,7 @@ Bus::~Bus(){
 
 void Bus::cpuWrite(uint16_t addr, uint8_t data){
     if(addr >= 0x0000 && addr <= 0x1FFF){
-        cpuMem[addr & 0x01FFF] = data;
+        cpuMem[addr & 0x1FFF] = data;
     }
     /*
     else if(addr >= 0x2000 && addr <= 0x3FFF){

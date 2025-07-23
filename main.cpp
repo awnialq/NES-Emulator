@@ -6,7 +6,10 @@
 int main(int argc, char* argv[]) {
 
     cpu6502 cpu = cpu6502();
-    cpu.clock();
+
+    for(int i = 10; i > 0; i--){
+        cpu.clock();
+    }
     /*
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         SDL_Log("SDL could not initialize! SDL error: %s\n", SDL_GetError());
