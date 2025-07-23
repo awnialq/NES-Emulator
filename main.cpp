@@ -6,9 +6,8 @@
 int main(int argc, char* argv[]) {
 
     cpu6502 cpu = cpu6502();
-    std::string log = cpu.cpuStatusLog();
-    std::cout << log << std::endl;
-
+    cpu.clock();
+    /*
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         SDL_Log("SDL could not initialize! SDL error: %s\n", SDL_GetError());
         return 1;
@@ -56,6 +55,7 @@ int main(int argc, char* argv[]) {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
+    */
     return 0;
 }
 

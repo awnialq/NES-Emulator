@@ -1,12 +1,14 @@
 #include "cpu6502.h"
 #include "Bus.h"
 #include <cstdint>
+#include <cstdio>
 #include <string>
 #include <format>
 
 using cpu = cpu6502; //Creates a temporary naming variable to make the table more simple.
 
 cpu::cpu6502(){
+    bus = new Bus();
     this->lookup = {
                             //Horizontal (LSB) 0x0_
     /*Vertical 0x_0 (MSB)*/ { "BRK", &cpu::BRK, &cpu::IMM, 7 },{ "ORA", &cpu::ORA, &cpu::INX, 6 },{ "???", &cpu::DUM, &cpu::DUM, 2 },{ "???", &cpu::DUM, &cpu::IMP, 8 },{ "???", &cpu::NOP, &cpu::IMP, 3 },{ "ORA", &cpu::ORA, &cpu::ZP0, 3 },{ "ASL", &cpu::ASL, &cpu::ZP0, 5 },{ "???", &cpu::DUM, &cpu::IMP, 5 },{ "PHP", &cpu::PHP, &cpu::IMP, 3 },{ "ORA", &cpu::ORA, &cpu::IMM, 2 },{ "ASL", &cpu::ASL, &cpu::IMP, 2 },{ "???", &cpu::DUM, &cpu::IMP, 2 },{ "???", &cpu::NOP, &cpu::IMP, 4 },{ "ORA", &cpu::ORA, &cpu::ABS, 4 },{ "ASL", &cpu::ASL, &cpu::ABS, 6 },{ "???", &cpu::DUM, &cpu::IMP, 6 },
@@ -58,7 +60,7 @@ void cpu::clock(){
         uint8_t addCycleOp = (this->*lookup[opcode].operate)();
         cycles += (addCycleAddr & addCycleOp);
     }
-    cpuStatusLog();
+    printf("%s\n", cpuStatusLog().c_str());
     cycles--;
 }
 

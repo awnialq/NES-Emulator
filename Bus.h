@@ -12,7 +12,6 @@ class Bus{
         ~Bus();
 
     public:
-        cpu6502 cpu;
         std::array<uint8_t, 2048> cpuMem;
         std::shared_ptr<cartridge> game;
        // ppu2C02 ppu;
@@ -21,8 +20,8 @@ class Bus{
         uint8_t cpuRead(uint16_t addr, bool readOnly = false);
 
         void insertCart(const std::shared_ptr<cartridge>& cartridge); 
-        void reset();
-        void clock();
+        //void reset();
+        //void clock();
     private:
-        uint32_t clockCntr = 0;
+        //uint32_t clockCntr = 0;
 };

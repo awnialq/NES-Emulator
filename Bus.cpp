@@ -1,12 +1,13 @@
 #include "Bus.h"
+#include <cstdio>
 
 
  
 
 Bus::Bus(){
     for(auto &i : cpuMem){i = 0x00;}
-
-    cpu.ConnectBus(this);
+    cpuMem[0] = 0xA9;
+    cpuMem[1] = 0xFF;
 }
 
 Bus::~Bus(){
@@ -42,15 +43,4 @@ uint8_t Bus::cpuRead(uint16_t addr, bool readOnly){
 void Bus::insertCart(const std::shared_ptr<cartridge>& cartridge){
     this->game = cartridge;
     //ppu.connectCart(cartridge);
-}
-void Bus::reset(){
-    cpu.reset();
-    clockCntr = 0;
-}
-void Bus::clock(){
-    //ppu.clock();
-    if(clockCntr % 3 == 0){
-        cpu.clock();
-    }
-    clockCntr++;
 }
