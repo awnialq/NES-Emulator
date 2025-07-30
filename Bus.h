@@ -5,6 +5,7 @@
 #include "ppu2C02.h"
 #include <array>
 #include <memory>
+#include <vector>
 
 class Bus{
     public:
@@ -12,16 +13,13 @@ class Bus{
         ~Bus();
 
     public:
-        std::array<uint8_t, 2048> cpuMem;
-        std::shared_ptr<cartridge> game;
+        std::array<uint8_t, 2048> cpuMem; 
        // ppu2C02 ppu;
-    public:
         void cpuWrite(uint16_t addr, uint8_t data);
         uint8_t cpuRead(uint16_t addr, bool readOnly = false);
-
-        void insertCart(const std::shared_ptr<cartridge>& cartridge); 
         //void reset();
         //void clock();
+        cartridge *cart = nullptr;
     private:
         //uint32_t clockCntr = 0;
 };

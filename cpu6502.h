@@ -1,4 +1,5 @@
 #pragma once
+#include "cartridge.h"
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -43,6 +44,7 @@ class cpu6502{
         uint16_t addr_relatvie = 0x00;
         uint8_t opcode = 0x00;
         uint8_t cycles = 0; 
+
     private:
         //All the possible addressing modes for the CPU
         uint8_t IMP(); //Implicit

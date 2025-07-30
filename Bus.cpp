@@ -1,4 +1,5 @@
 #include "Bus.h"
+#include "cartridge.h"
 #include <cstdio>
 
 
@@ -6,12 +7,8 @@
 
 Bus::Bus(){
     for(auto &i : cpuMem){i = 0x00;}
-    cpuMem[0] = 0xA2;
-    cpuMem[1] = 0x00;
-    cpuMem[2] = 0xA2;
-    cpuMem[3] = 0x10;
-    cpuMem[4] = 0xA2;
-    cpuMem[5] = 0xFF;
+    cart = new cartridge();
+    cart->initCart();
 }
 
 Bus::~Bus(){
@@ -44,7 +41,3 @@ uint8_t Bus::cpuRead(uint16_t addr, bool readOnly){
     return data;
 }
 
-void Bus::insertCart(const std::shared_ptr<cartridge>& cartridge){
-    this->game = cartridge;
-    //ppu.connectCart(cartridge);
-}

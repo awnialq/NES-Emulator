@@ -1,5 +1,6 @@
 #include "cpu6502.h"
 #include "Bus.h"
+#include "cartridge.h"
 #include <cstdint>
 #include <cstdio>
 #include <string>

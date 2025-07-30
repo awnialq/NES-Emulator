@@ -7,3 +7,4 @@
 *.o
 /SDL3/
 *.dll
+/testRoms/
