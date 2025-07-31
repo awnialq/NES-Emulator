@@ -8,7 +8,9 @@
 Bus::Bus(){
     for(auto &i : cpuMem){i = 0x00;}
     cart = new cartridge();
-    cart->initCart();
+    if(cart->initCart() == 1){
+        printf("Cart succesfully loaded\n");
+    }
 }
 
 Bus::~Bus(){
