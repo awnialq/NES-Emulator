@@ -55,6 +55,7 @@ void cpu::write(uint16_t addr, uint8_t dest){
 void cpu::clock(){
     if(cycles == 0){
         opcode = read(progc++);
+        printf("Opcode: %s\n", lookup[opcode].name.c_str());
         cycles = lookup[opcode].cycles; //Gets the # of cycles that given operation needs to execute. *BEST CASE SCENARIO*
 
         uint8_t addCycleAddr = (this->*lookup[opcode].addrmode)();
@@ -68,12 +69,13 @@ void cpu::clock(){
 std::string cpu::cpuStatusLog(){
     return "Accum: " + std::format("{:#04x}", this->accum) + " | X: " + std::format("{:#04x}", this->x) + 
     " | Y: " + std::format("{:#04x}", this->y) + " | Stackp: " + std::format("{:#04x}", this->stackp) + " | Progc: " + std::format("{:#06x}", this->progc)
-    + "\nStatus: \n\tC: " + std::to_string((this->status & 0x01)) + "\n\tZ: " + std::to_string(((this->status >> 1) & 0x01))
-    + "\n\tI: " + std::to_string(((this->status >> 2) & 0x01)) + "\n\tB: " + std::to_string(((this->status >> 4) & 0x01))
-    + "\n\tV: " + std::to_string(((this->status >> 6) & 0x01)) + "\n\tN: " + std::to_string(((this->status >> 7) & 0x01));
+    + " | Status: C: " + std::to_string((this->status & 0x01)) + " Z: " + std::to_string(((this->status >> 1) & 0x01))
+    + " I: " + std::to_string(((this->status >> 2) & 0x01)) + " B: " + std::to_string(((this->status >> 4) & 0x01))
+    + " V: " + std::to_string(((this->status >> 6) & 0x01)) + " N: " + std::to_string(((this->status >> 7) & 0x01));
 }
 
 void cpu::setFlag(FLAGS6502 f, bool v){
+    
     v ? status |= f : status &= ~f;
 }
 

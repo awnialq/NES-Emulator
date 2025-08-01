@@ -1,5 +1,6 @@
 #include "Bus.h"
 #include "cartridge.h"
+#include <cstdint>
 #include <cstdio>
 
 
@@ -10,6 +11,10 @@ Bus::Bus(){
     cart = new cartridge();
     if(cart->initCart() == 1){
         printf("Cart succesfully loaded\n");
+    }
+    uint16_t addr = 0xC000;
+    for(auto data : cart->prgMem){
+        cpuWrite(addr, data);
     }
 }
 

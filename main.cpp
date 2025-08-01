@@ -7,7 +7,7 @@ int main(int argc, char* argv[]) {
 
     cpu6502 cpu = cpu6502();
 
-    for(int i = 10; i > 0; i--){
+    for(int i = 0; i < 20; i++){
         cpu.clock();
     }
     /*
