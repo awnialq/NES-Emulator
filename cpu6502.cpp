@@ -54,6 +54,7 @@ void cpu::write(uint16_t addr, uint8_t dest){
 }
 void cpu::clock(){
     if(cycles == 0){
+        printf("Progc: %s\n", std::format("{:#06x}",progc).c_str());
         opcode = read(progc++);
         printf("Opcode: %s\n", lookup[opcode].name.c_str());
         cycles = lookup[opcode].cycles; //Gets the # of cycles that given operation needs to execute. *BEST CASE SCENARIO*

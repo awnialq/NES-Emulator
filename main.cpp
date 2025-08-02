@@ -1,15 +1,17 @@
 #include "cpu6502.h"
 #include <SDL3/SDL.h>
 #include <iostream>
+#include "Bus.h"
 #include <ostream>
 
 int main(int argc, char* argv[]) {
 
     cpu6502 cpu = cpu6502();
 
-    for(int i = 0; i < 20; i++){
+    for(int i = 0; i < 150; i++){
         cpu.clock();
     }
+    printf("%d%d %d%d", cpu.bus->cpuMem[2], cpu.bus->cpuMem[3], cpu.bus->cpuMem[4], cpu.bus->cpuMem[5]);
     /*
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         SDL_Log("SDL could not initialize! SDL error: %s\n", SDL_GetError());

@@ -12,10 +12,6 @@ Bus::Bus(){
     if(cart->initCart() == 1){
         printf("Cart succesfully loaded\n");
     }
-    uint16_t addr = 0xC000;
-    for(auto data : cart->prgMem){
-        cpuWrite(addr, data);
-    }
 }
 
 Bus::~Bus(){
@@ -43,6 +39,9 @@ uint8_t Bus::cpuRead(uint16_t addr, bool readOnly){
         data = ppu.cpuRead(addr & 0x0007, readOnly);
     }
     */
+    if(addr >= 0xC000){
+        data = cart->prgMem[addr - 0xC000];
+    }
     
 
     return data;
