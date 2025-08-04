@@ -566,10 +566,10 @@ uint8_t cpu::JMP(){
 }
 
 uint8_t cpu::JSR(){
-    progc--;
     write(stackp + 0x0100, (progc >> 8));   //save upper half of the progc
     stackp--;
     write(stackp + 0x0100, progc & 0x00ff); //save lower half of the progc
+    stackp--;
     progc = addr_absolute;
     return 0;
 }
@@ -585,8 +585,8 @@ uint8_t cpu::PHP(){
 }
 
 uint8_t cpu::PLA(){
-    stackp++;
     accum = read(0x0100 + stackp);
+    stackp++;
     if(accum == 0x00){
         setFlag(Z,0);
     }

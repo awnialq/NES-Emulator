@@ -8,7 +8,7 @@ int main(int argc, char* argv[]) {
 
     cpu6502 cpu = cpu6502();
 
-    for(int i = 0; i < 150; i++){
+    for(int i = 0; i < 300; i++){
         cpu.clock();
     }
     printf("%d%d %d%d", cpu.bus->cpuMem[2], cpu.bus->cpuMem[3], cpu.bus->cpuMem[4], cpu.bus->cpuMem[5]);

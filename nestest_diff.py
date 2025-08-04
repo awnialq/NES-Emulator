@@ -17,3 +17,17 @@ y_exp = [x.split()[7] for x in lines]
 stackp_exp = [x.split()[9] for x in lines]
 
 # the comparator
+# ...existing code...
+
+for i in range(min(len(progc_bench), len(progc_exp))):
+    if (progc_bench[i].lower() != progc_exp[i].lower() or
+        accum_bench[i].lower() != accum_exp[i].lower() or
+        x_bench[i].lower() != x_exp[i].lower() or
+        y_bench[i].lower() != y_exp[i].lower() or
+        stackp_bench[i].lower() != stackp_exp[i].lower()):
+        print(f"Mismatch at line {i+1}:")
+        print(f"  Benchmark: pc={progc_bench[i]} a={accum_bench[i]} x={x_bench[i]} y={y_bench[i]} sp={stackp_bench[i]}")
+        print(f"  Emulator : pc={progc_exp[i]} a={accum_exp[i]} x={x_exp[i]} y={y_exp[i]} sp={stackp_exp[i]}")
+        break
+else:
+    print("All compared values match!")
