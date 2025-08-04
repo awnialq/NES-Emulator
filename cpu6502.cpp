@@ -5,11 +5,15 @@
 #include <cstdio>
 #include <string>
 #include <format>
+#include <cassert>
 
 using cpu = cpu6502; //Creates a temporary naming variable to make the table more simple.
 
 cpu::cpu6502(){
     bus = new Bus();
+    cpuLog.open("cpu_log.txt", std::ios::out | std::ios::trunc); // Overwrite each run
+    assert(cpuLog.is_open());
+    cpuLog << cpuLog_clean() << std::endl;
     this->lookup = {
                             //Horizontal (LSB) 0x0_
     /*Vertical 0x_0 (MSB)*/ { "BRK", &cpu::BRK, &cpu::IMM, 7 },{ "ORA", &cpu::ORA, &cpu::INX, 6 },{ "???", &cpu::DUM, &cpu::DUM, 2 },{ "???", &cpu::DUM, &cpu::IMP, 8 },{ "???", &cpu::NOP, &cpu::IMP, 3 },{ "ORA", &cpu::ORA, &cpu::ZP0, 3 },{ "ASL", &cpu::ASL, &cpu::ZP0, 5 },{ "???", &cpu::DUM, &cpu::IMP, 5 },{ "PHP", &cpu::PHP, &cpu::IMP, 3 },{ "ORA", &cpu::ORA, &cpu::IMM, 2 },{ "ASL", &cpu::ASL, &cpu::IMP, 2 },{ "???", &cpu::DUM, &cpu::IMP, 2 },{ "???", &cpu::NOP, &cpu::IMP, 4 },{ "ORA", &cpu::ORA, &cpu::ABS, 4 },{ "ASL", &cpu::ASL, &cpu::ABS, 6 },{ "???", &cpu::DUM, &cpu::IMP, 6 },
@@ -51,6 +55,8 @@ uint8_t cpu::read(uint16_t addr){
 
 void cpu::write(uint16_t addr, uint8_t dest){
     bus->cpuWrite(addr, dest);
+
+    
 }
 void cpu::clock(){
     if(cycles == 0){
@@ -62,6 +68,8 @@ void cpu::clock(){
         uint8_t addCycleAddr = (this->*lookup[opcode].addrmode)();
         uint8_t addCycleOp = (this->*lookup[opcode].operate)();
         cycles += (addCycleAddr & addCycleOp);
+        cpuLog << cpuLog_clean() << std::endl;
+
     }
     printf("%s\n", cpuStatusLog().c_str());
     cycles--;
@@ -74,6 +82,11 @@ std::string cpu::cpuStatusLog(){
     + " I: " + std::to_string(((this->status >> 2) & 0x01)) + " B: " + std::to_string(((this->status >> 4) & 0x01))
     + " V: " + std::to_string(((this->status >> 6) & 0x01)) + " N: " + std::to_string(((this->status >> 7) & 0x01));
 }
+
+std::string cpu::cpuLog_clean(){
+    return std::format("pc: {:04x} a: {:02x} x: {:02x} y: {:02x} sp: {:02x}", this->progc, this->accum, this->x, this->y, this->stackp);
+}
+
 
 void cpu::setFlag(FLAGS6502 f, bool v){
     
@@ -159,6 +172,7 @@ uint8_t cpu::IMM() {
 uint8_t cpu::ZP0() {
     addr_absolute = read(progc++);
     addr_absolute &= 0x00FF;
+    printf("zp0 addr_abs: %x\n", addr_absolute);
     return 0;
 }
 
@@ -741,8 +755,9 @@ uint8_t cpu::STA(){ //Store accumulator in Memory
     return 0;
 }
 
-uint8_t cpu::STX(){ //Store register X @ a memory location
+uint8_t cpu::STX(){ //Store register X @ a memory location  
     bus->cpuWrite(addr_absolute, x);
+    printf("Data @ addr: %x\n", this->bus->cpuMem[addr_absolute]);
     return 0;
 }
 

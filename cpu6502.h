@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <fstream>
 
 class Bus;
 
@@ -25,7 +26,7 @@ class cpu6502{
         uint8_t accum = 0x00; //Accumulator Register
         uint8_t x = 0x00; //X Register
         uint8_t y = 0x00; //Y Register
-        uint8_t stackp = 0x00; //Stack Pointer
+        uint8_t stackp = 0xFD; //Stack Pointer
         uint16_t progc = 0xC000; //Status Register
         uint8_t status = 0x00; //Reps the Status Register
 
@@ -36,6 +37,7 @@ class cpu6502{
         void interruptReq(); //Can be ignored with the Disable Interruptions Flag is active
         void nonMskInter(); //CAN NOT be ignored
         std::string cpuStatusLog();
+        std::string cpuLog_clean();
 
         uint8_t fetch();
         uint8_t fetched = 0x00;
@@ -129,4 +131,5 @@ class cpu6502{
             uint8_t cycles = 0; //The # of cycles the instruction needs to fully execute.
         };
         std::vector<INSTRUCTION> lookup;
+        std::ofstream cpuLog;
 };
