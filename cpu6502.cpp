@@ -603,16 +603,14 @@ uint8_t cpu::PHP(){
 uint8_t cpu::PLA(){
     stackp++;
     accum = read(0x0100 + stackp);
-    if(accum == 0x00){
-        setFlag(Z,0);
-    }
+    setFlag(Z, accum == 0);
     setFlag(N,accum >> 7);
     return 0;
 }
 
 uint8_t cpu::PLP(){
     stackp++;
-    uint8_t temp = read(stackp);
+    uint8_t temp = read(0x0100 + stackp);
     status = temp;
     setFlag(U, 1);
     return 0;
@@ -752,7 +750,7 @@ uint8_t cpu::RTS(){
 }
 
 uint8_t cpu::SEC(){ //Set carry flag to high
-    setFlag(C, true);
+    setFlag(C, 1);
     return 0;
 }
 
