@@ -38,6 +38,7 @@ class cpu6502{
         void nonMskInter(); //CAN NOT be ignored
         std::string cpuStatusLog();
         std::string cpuLog_clean();
+        std::string addrmodeName(uint8_t(cpu6502::*addrmode)());
 
         uint8_t fetch();
         uint8_t fetched = 0x00;

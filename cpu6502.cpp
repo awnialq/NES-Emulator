@@ -63,6 +63,7 @@ void cpu::clock(){
         printf("Progc: %s\n", std::format("{:#06x}",progc).c_str());
         opcode = read(progc++);
         printf("Opcode: %s\n", lookup[opcode].name.c_str());
+        printf("Addr mode: %s\n", addrmodeName(lookup[opcode].addrmode).c_str());
         cycles = lookup[opcode].cycles; //Gets the # of cycles that given operation needs to execute. *BEST CASE SCENARIO*
 
         uint8_t addCycleAddr = (this->*lookup[opcode].addrmode)();
@@ -73,6 +74,22 @@ void cpu::clock(){
     }
     printf("%s\n", cpuStatusLog().c_str());
     cycles--;
+}
+
+std::string cpu::addrmodeName(uint8_t(cpu6502::*addrmode)()) {
+    if (addrmode == &cpu6502::IMP) return "IMP";
+    if (addrmode == &cpu6502::IMM) return "IMM";
+    if (addrmode == &cpu6502::ZP0) return "ZP0";
+    if (addrmode == &cpu6502::ZPX) return "ZPX";
+    if (addrmode == &cpu6502::ZPY) return "ZPY";
+    if (addrmode == &cpu6502::REL) return "REL";
+    if (addrmode == &cpu6502::ABS) return "ABS";
+    if (addrmode == &cpu6502::ABX) return "ABX";
+    if (addrmode == &cpu6502::ABY) return "ABY";
+    if (addrmode == &cpu6502::IND) return "IND";
+    if (addrmode == &cpu6502::INX) return "INX";
+    if (addrmode == &cpu6502::INY) return "INY";
+    return "UNKNOWN";
 }
 
 std::string cpu::cpuStatusLog(){
@@ -575,18 +592,17 @@ uint8_t cpu::JSR(){
 }
 
 uint8_t cpu::PHP(){
-    uint8_t data;
-    data = status | 0b00110000;
+    uint8_t data = status | 0b00110000;
+    write(stackp + 0x0100,data);
     setFlag(B, 0);
     setFlag(U, 0);
-    write(stackp + 0x0100,data);
     stackp--;
     return 0;
 }
 
 uint8_t cpu::PLA(){
-    accum = read(0x0100 + stackp);
     stackp++;
+    accum = read(0x0100 + stackp);
     if(accum == 0x00){
         setFlag(Z,0);
     }
@@ -705,7 +721,7 @@ uint8_t cpu::BIT(){
     uint8_t temp = accum & fetched;
     setFlag(Z, temp == 0x00);
     setFlag(N, (fetched >> 7 != 0)); 
-    setFlag(V, ((fetched >> 6) & 0b0000010) != 0);
+    setFlag(V, ((fetched >> 6) & 0b000001) != 0);
     return 0;
 }
 
