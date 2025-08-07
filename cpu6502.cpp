@@ -101,7 +101,7 @@ std::string cpu::cpuStatusLog(){
 }
 
 std::string cpu::cpuLog_clean(){
-    return std::format("pc: {:04x} a: {:02x} x: {:02x} y: {:02x} sp: {:02x}", this->progc, this->accum, this->x, this->y, this->stackp);
+    return std::format("pc: {:04x} a: {:02x} x: {:02x} y: {:02x} p: {:02x} sp: {:02x}", this->progc, this->accum, this->x, this->y, this->status, this->stackp);
 }
 
 
@@ -594,8 +594,6 @@ uint8_t cpu::JSR(){
 uint8_t cpu::PHP(){
     uint8_t data = status | 0b00110000;
     write(stackp + 0x0100,data);
-    setFlag(B, 0);
-    setFlag(U, 0);
     stackp--;
     return 0;
 }
@@ -611,8 +609,8 @@ uint8_t cpu::PLA(){
 uint8_t cpu::PLP(){
     stackp++;
     uint8_t temp = read(0x0100 + stackp);
-    status = temp;
-    setFlag(U, 1);
+    temp &= 0b11001111;
+    status |= 0b11001111;
     return 0;
 }
 

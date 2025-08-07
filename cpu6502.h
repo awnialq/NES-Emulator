@@ -28,7 +28,7 @@ class cpu6502{
         uint8_t y = 0x00; //Y Register
         uint8_t stackp = 0xFD; //Stack Pointer
         uint16_t progc = 0xC000; //Status Register
-        uint8_t status = 0x00; //Reps the Status Register
+        uint8_t status = 0x24; //Reps the Status Register
 
         void ConnectBus(Bus *bp) {bus  = bp;}
 
