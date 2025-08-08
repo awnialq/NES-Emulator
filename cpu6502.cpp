@@ -336,10 +336,10 @@ uint8_t cpu::ADC(){
 
 uint8_t cpu::ASL(){
     fetch();
-    setFlag(C, ((fetched & 0b10000000) != 0));
-    setFlag(N, ((fetched & 0b10000000) != 0));
+    setFlag(C, fetched >> 7);
     fetched = fetched << 1;
     setFlag(Z, fetched == 0x00);
+    setFlag(N, fetched >> 7);
     if(lookup[opcode].addrmode == &cpu::IMP){
         accum = fetched;
     }
@@ -584,6 +584,7 @@ uint8_t cpu::JMP(){
 
 
 uint8_t cpu::JSR(){
+    progc--;
     write(stackp + 0x0100, (progc >> 8));   //save upper half of the progc
     stackp--;
     write(stackp + 0x0100, progc & 0x00ff); //save lower half of the progc
@@ -648,15 +649,16 @@ uint8_t cpu::ROR(){
 
 uint8_t cpu::ROL(){
     fetch();
-    uint8_t temp = (uint16_t)(fetched << 1) | getFlag(C);
-    setFlag(C, temp & 0x0100);
-    setFlag(Z, ((uint8_t)temp == 0x00));
-    setFlag(N, temp & 0x0080);
+    setFlag(C, fetched >> 7);
+    fetched = fetched << 1;
+    if(getFlag(C) == 1){fetched |= 0x01;}
+    setFlag(Z, fetched == 0);
+    setFlag(N, fetched >> 7);
     if(lookup[opcode].addrmode == &cpu::IMP){
-        accum = (uint8_t)temp;
+        accum = fetched;
     }
     else{
-        write(addr_absolute, (uint8_t)temp);
+        write(addr_absolute, fetched);
     }
     return 0;
 }
@@ -674,11 +676,13 @@ uint8_t cpu::LSR(){ //Logical Shift Right implementation
     fetch();
     setFlag(C, fetched & 0x0001);
     fetched = fetched >> 1;
-    if(fetched == 0x00){
-        setFlag(Z, true);
+    setFlag(Z, fetched == 0);
+    setFlag(N, 0);
+    if(lookup[opcode].addrmode == &cpu::IMP){
+        accum = fetched;
     }
-    if(fetched & 0x80){
-        setFlag(N, true);
+    else{
+        write(addr_absolute, fetched);
     }
     return 0;
 }
@@ -725,14 +729,14 @@ uint8_t cpu::BIT(){
 uint8_t cpu::RTI(){
     //restore status register
     stackp++;
-    status = read(0x0100 + stackp);
-    status &= ~B;
-    status &= ~U;
+    uint8_t temp = read(0x0100 + stackp); 
+    temp &= 0b11001111;
+    status = temp | (status & 0b00110000);
     //restore progc
     stackp++;
-    progc = (uint16_t)(0x0100 + stackp);
+    progc = (uint16_t)read(0x0100 + stackp); //stack lives on the first page/ get the low byte of the address.
     stackp++;
-    progc |= (uint16_t)(read(0x0100 + stackp) << 8);
+    progc |= (uint16_t)read(0x0100 + stackp) << 8; //get the high byte of the adddress
     return 0;
 }
 
@@ -759,6 +763,7 @@ uint8_t cpu::RTS(){
     progc = (uint16_t)read(0x0100 + stackp); //stack lives on the first page/ get the low byte of the address.
     stackp++;
     progc |= (uint16_t)read(0x0100 + stackp) << 8; //get the high byte of the adddress
+    progc++;
     return 0;
 }
 
@@ -795,21 +800,29 @@ uint8_t cpu::STY(){ //Store register Y @ a memory location
 
 uint8_t cpu::TAX(){ //Transfer accumulator to X
     x = accum;
+    setFlag(Z, x == 0);
+    setFlag(N, x >> 7);
     return 0;
 }
 
 uint8_t cpu::TAY(){ //Transfer Accumulator to Y
     y = accum;
+    setFlag(Z, y == 0);
+    setFlag(N, y >> 7);
     return 0;
 }
 
 uint8_t cpu::TSX(){ //Transfer stack pointer register to X
     x = stackp;
+    setFlag(Z, x == 0);
+    setFlag(N, x >> 7);
     return 0;
 }
 
 uint8_t cpu::TXA(){ //Transfer register X to accumulator
     accum = x;
+    setFlag(Z, accum == 0);
+    setFlag(N, accum >> 7);
     return 0;
 }
 
@@ -820,5 +833,7 @@ uint8_t cpu::TXS(){ //Transfer X to Stack pointer register
 
 uint8_t cpu::TYA(){ //Transfer Index Y to Accumulator
     accum = y;
+    setFlag(Z, accum == 0);
+    setFlag(N, accum >> 7);
     return 0;
 }
