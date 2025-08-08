@@ -59,7 +59,9 @@ class cpu6502{
         uint8_t ABS(); //Absolute
         uint8_t ABX(); //Absolute X
         uint8_t ABY(); //Absolute Y
-        uint8_t IND(); //Indirect  
+        uint8_t IND(); //Indirect
+        uint8_t INDX(); //Indirect x
+        uint8_t INDY(); //Indirect Y
     private:
         //All OpCodes - https://www.masswerk.at/6502/6502_instruction_set.html#BPL
         uint8_t ADC(); // add with carry
