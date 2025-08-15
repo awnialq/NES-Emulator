@@ -14,7 +14,7 @@ cpu::cpu6502(){
     cpuLog.open("cpu_log.txt", std::ios::out | std::ios::trunc); // Overwrite each run
     assert(cpuLog.is_open());
     cpuLog << cpuLog_clean() << std::endl;
-    this->lookup = {
+    /*Illegal Opcodes have not fully been implemented so yea.*/this->lookup = {
                             //Horizontal (LSB) 0x0_
     /*Vertical 0x_0 (MSB)*/ { "BRK", &cpu::BRK, &cpu::IMM, 7 },{ "ORA", &cpu::ORA, &cpu::INDX, 6 },{ "???", &cpu::DUM, &cpu::DUM, 2 },{ "???", &cpu::DUM, &cpu::IMP, 8 },{ "???", &cpu::NOP, &cpu::ZP0, 3 },{ "ORA", &cpu::ORA, &cpu::ZP0, 3 },{ "ASL", &cpu::ASL, &cpu::ZP0, 5 },{ "???", &cpu::DUM, &cpu::IMP, 5 },{ "PHP", &cpu::PHP, &cpu::IMP, 3 },{ "ORA", &cpu::ORA, &cpu::IMM, 2 },{ "ASL", &cpu::ASL, &cpu::IMP, 2 },{ "???", &cpu::DUM, &cpu::IMP, 2 },{ "???", &cpu::NOP, &cpu::ABS, 4 },{ "ORA", &cpu::ORA, &cpu::ABS, 4 },{ "ASL", &cpu::ASL, &cpu::ABS, 6 },{ "???", &cpu::DUM, &cpu::IMP, 6 },
                             { "BPL", &cpu::BPL, &cpu::REL, 2 },{ "ORA", &cpu::ORA, &cpu::INDY, 5 },{ "???", &cpu::DUM, &cpu::IMP, 2 },{ "???", &cpu::DUM, &cpu::IMP, 8 },{ "???", &cpu::NOP, &cpu::ZPX, 4 },{ "ORA", &cpu::ORA, &cpu::ZPX, 4 },{ "ASL", &cpu::ASL, &cpu::ZPX, 6 },{ "???", &cpu::DUM, &cpu::IMP, 6 },{ "CLC", &cpu::CLC, &cpu::IMP, 2 },{ "ORA", &cpu::ORA, &cpu::ABY, 4 },{ "???", &cpu::NOP, &cpu::IMP, 2 },{ "???", &cpu::DUM, &cpu::IMP, 7 },{ "???", &cpu::NOP, &cpu::ABX, 4 },{ "ORA", &cpu::ORA, &cpu::ABX, 4 },{ "ASL", &cpu::ASL, &cpu::ABX, 7 },{ "???", &cpu::DUM, &cpu::IMP, 7 },
