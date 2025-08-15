@@ -787,7 +787,6 @@ uint8_t cpu::STA(){ //Store accumulator in Memory
 
 uint8_t cpu::STX(){ //Store register X @ a memory location  
     bus->cpuWrite(addr_absolute, x);
-    printf("Data @ addr: %x\n", this->bus->cpuMem[addr_absolute]);
     return 0;
 }
 
