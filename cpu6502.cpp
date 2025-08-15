@@ -60,10 +60,10 @@ void cpu::write(uint16_t addr, uint8_t dest){
 }
 void cpu::clock(){
     if(cycles == 0){
-        printf("Progc: %s\n", std::format("{:#06x}",progc).c_str());
+        //printf("Progc: %s\n", std::format("{:#06x}",progc).c_str());
         opcode = read(progc++);
-        printf("Opcode: %s\n", lookup[opcode].name.c_str());
-        printf("Addr mode: %s\n", addrmodeName(lookup[opcode].addrmode).c_str());
+        //printf("Opcode: %s\n", lookup[opcode].name.c_str());
+        //printf("Addr mode: %s\n", addrmodeName(lookup[opcode].addrmode).c_str());
         cycles = lookup[opcode].cycles; //Gets the # of cycles that given operation needs to execute. *BEST CASE SCENARIO*
 
         uint8_t addCycleAddr = (this->*lookup[opcode].addrmode)();
@@ -189,7 +189,6 @@ uint8_t cpu::IMM() {
 uint8_t cpu::ZP0() {
     addr_absolute = read(progc++);
     addr_absolute &= 0x00FF;
-    printf("zp0 addr_abs: %x\n", addr_absolute);
     return 0;
 }
 
