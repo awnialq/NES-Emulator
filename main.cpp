@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
     for(int i = 0; i <  16000; i++){
         cpu.clock();
     }
-    printf("%d%d %d%d", cpu.bus->cpuMem[2], cpu.bus->cpuMem[3], cpu.bus->cpuMem[4], cpu.bus->cpuMem[5]);
+    printf("NES Test Results: %02x %02x\n", cpu.bus->cpuMem[2], cpu.bus->cpuMem[3]);
     /*
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         SDL_Log("SDL could not initialize! SDL error: %s\n", SDL_GetError());
