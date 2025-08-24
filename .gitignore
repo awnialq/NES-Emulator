@@ -9,3 +9,4 @@
 *.dll
 /testRoms/
 test
+*.s
