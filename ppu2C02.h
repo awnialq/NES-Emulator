@@ -16,7 +16,6 @@ class ppu2C02{
         uint8_t ppuRead(uint16_t addr, bool readOnly);
         void ppuWrite(uint16_t addr, uint8_t data);
 
-        void connectCart(const std::shared_ptr<cartridge>& cart);
         void clock();
     private:
 
