@@ -72,7 +72,7 @@ void cpu::clock(){
         cpuLog << cpuLog_clean() << std::endl;
 
     }
-    //printf("%s\n", cpuStatusLog().c_str());
+    std::cout << cpuStatusLog() << std::endl;
     cycles--;
 }
 
