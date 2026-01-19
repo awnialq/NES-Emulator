@@ -1,12 +1,12 @@
 #include "cpu6502.h"
-#include <SDL3/SDL.h>
+//#include <SDL3/SDL.h>
 #include <iostream>
 #include "Bus.h"
 #include <ostream>
 
 int main(int argc, char* argv[]) {
 
-    cpu6502 cpu = cpu6502();
+    cpu6502 cpu;
 
     for(int i = 0; i <  16000; i++){
         cpu.clock();
