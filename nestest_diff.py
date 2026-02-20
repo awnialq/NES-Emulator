@@ -18,7 +18,6 @@ p_exp = [x.split()[9] for x in lines]                       # Extract status reg
 stackp_exp = [x.split()[11] for x in lines]
 
 # the comparator
-# ...existing code...
 
 for i in range(min(len(progc_bench), len(progc_exp))):
     if (progc_bench[i].lower() != progc_exp[i].lower() or
