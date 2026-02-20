@@ -10,3 +10,4 @@
 /testRoms/
 test
 *.s
+/bin/
