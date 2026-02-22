@@ -19,7 +19,7 @@ uint8_t crt::initCart(){
     assert(nesStream.is_open());
     nesStream.read(reinterpret_cast<char *>(header),16);
     if(!(header[0] == 'N' && header[1] == 'E' && header[2] == 'S' && header[3] == 0x1A)){
-        std::cout << "Error: file not in iNES format" << std::endl;
+        std::cout << "Error: file " << romPath << " not in iNES format" << std::endl;
         return 0;
     }
     prgMem.resize(header[4] * 16384);
