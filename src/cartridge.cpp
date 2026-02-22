@@ -5,24 +5,21 @@
 #include <fstream>
 #include <iostream>
 #include <assert.h>
-#include <string.h>
+#include <string>
 
 using crt = cartridge;
 
-cartridge::cartridge(){
+crt::cartridge(char *rp){
+    romPath = rp;
 }
-
-cartridge::~cartridge(){
-}
-
 
 //ret 1 if the cart inits properly
 uint8_t crt::initCart(){
-    std::ifstream nesStream("./testRoms/nestest.nes",std::ios::binary);
+    std::ifstream nesStream(romPath,std::ios::binary);
     assert(nesStream.is_open());
     nesStream.read(reinterpret_cast<char *>(header),16);
     if(!(header[0] == 'N' && header[1] == 'E' && header[2] == 'S' && header[3] == 0x1A)){
-        printf("Error: Not in ines format\n");
+        std::cout << "Error: file not in iNES format" << std::endl;
         return 0;
     }
     prgMem.resize(header[4] * 16384);

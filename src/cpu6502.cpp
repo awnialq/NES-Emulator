@@ -3,14 +3,15 @@
 #include "cartridge.h"
 #include <cstdint>
 #include <cstdio>
+#include <cstdlib>
 #include <string>
 #include <format>
 #include <cassert>
 
 using cpu = cpu6502; //Creates a temporary naming variable to make the table more simple.
 
-cpu::cpu6502(){
-    bus = new Bus();
+cpu::cpu6502(char *romPath){
+    bus = new Bus(romPath);
     cpuLog.open("cpu_log.txt", std::ios::out | std::ios::trunc); // Overwrite each run
     assert(cpuLog.is_open());
     cpuLog << cpuLog_clean() << std::endl;
@@ -37,7 +38,7 @@ cpu::cpu6502(){
 
 
 cpu::~cpu6502(){
-
+    delete bus;
 }
 
 //core functionality
@@ -73,7 +74,7 @@ void cpu::clock(){
 
     }
     std::cout << cpuStatusLog() << std::endl;
-    cycles--;
+    --cycles;
 }
 
 std::string cpu::addrmodeName(uint8_t(cpu6502::*addrmode)()) {

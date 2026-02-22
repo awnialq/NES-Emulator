@@ -1,17 +1,29 @@
 #include "cpu6502.h"
-//#include <SDL3/SDL.h>
+// g++ test.cpp -o test -I/opt/homebrew/include -L/opt/homebrew/lib -lSDL2 -lSDL2_ttf - That is how you can compile with SDL2 support
+#include <exception>
 #include <iostream>
 #include "Bus.h"
 #include <ostream>
 
 int main(int argc, char* argv[]) {
-
-    cpu6502 cpu;
-
-    for(int i = 0; i <  16000; i++){
-        cpu.clock();
+    if (argc <= 1){
+        std::cout << "How to use: *executable name* {path to rom}" << std::endl;
+        return 0;
     }
-    printf("NES Test Results: %02x %02x\n", cpu.bus->cpuMem[2], cpu.bus->cpuMem[3]);
+
+    try{
+        cpu6502 cpu(argv[1]);
+
+        for(int i = 0; i <  16000; i++){
+        cpu.clock();
+        }
+
+        printf("NES Test Results: %02x %02x\n", cpu.bus->cpuMem[2], cpu.bus->cpuMem[3]);
+    } catch(std::exception &e){
+        std::cerr << e.what() << " - Aborting process" << std::endl;
+        return 1;
+    }
+
     /*
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         SDL_Log("SDL could not initialize! SDL error: %s\n", SDL_GetError());

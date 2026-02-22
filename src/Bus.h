@@ -9,7 +9,7 @@
 
 class Bus{
     public:
-        Bus();
+        Bus(char *);
         ~Bus();
 
     public:

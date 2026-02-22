@@ -8,8 +8,8 @@
 
 class cartridge{
     public: 
-        cartridge();
-        ~cartridge();
+        cartridge(char *);
+        ~cartridge() = default;
         uint8_t initCart();
     public: 
         uint8_t header[16];
@@ -17,4 +17,7 @@ class cartridge{
         std::vector<uint8_t> chrMem;    //Character memory
 
         uint8_t mapperID = 0;
+
+    private: 
+        std::string romPath;
 };

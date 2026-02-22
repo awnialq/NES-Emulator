@@ -9,7 +9,7 @@ class Bus;
 
 class cpu6502{
     public:
-        cpu6502();
+        cpu6502(char *);
         ~cpu6502();
     public: 
         enum FLAGS6502{
@@ -129,8 +129,8 @@ class cpu6502{
         void setFlag(FLAGS6502 f, bool v);
         struct INSTRUCTION{
             std::string name;
-            uint8_t(cpu6502::*operate)(void) = nullptr; //The operation function that coresponds with the respective operation.
-            uint8_t(cpu6502::*addrmode)(void) = nullptr; //The addressing mode that the function will use
+            uint8_t(cpu6502::*operate)() = nullptr; //The operation function that coresponds with the respective operation.
+            uint8_t(cpu6502::*addrmode)() = nullptr; //The addressing mode that the function will use
             uint8_t cycles = 0; //The # of cycles the instruction needs to fully execute.
         };
         std::vector<INSTRUCTION> lookup;

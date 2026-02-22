@@ -2,20 +2,24 @@
 #include "cartridge.h"
 #include <cstdint>
 #include <cstdio>
+#include <stdexcept>
 
 
  
 
-Bus::Bus(){
+Bus::Bus(char *romPath){
     for(auto &i : cpuMem){i = 0x00;}
-    cart = new cartridge();
+    cart = new cartridge(romPath);
     if(cart->initCart() == 1){
         printf("Cart succesfully loaded\n");
+    }
+    else{
+        throw std::runtime_error("Cartridge could not be loaded");
     }
 }
 
 Bus::~Bus(){
-
+    delete cart;
 }
 
 void Bus::cpuWrite(uint16_t addr, uint8_t data){
