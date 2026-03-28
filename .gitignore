@@ -11,3 +11,4 @@
 test
 *.s
 /bin/
+*.out
