@@ -21,4 +21,5 @@ class ppu2C02{
 
         uint8_t nameTables[2][1024];    //two 1kb nametables stored as a 2d array (to mimmic a table)
         uint8_t paletteTable[32];       //32 bytes are allocated to the palette memory for the ppu
+        
 };
