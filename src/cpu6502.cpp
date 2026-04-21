@@ -51,10 +51,10 @@ void cpu::clock(){
         uint8_t addCycleAddr = (this->*lookup[opcode].addrmode)();
         uint8_t addCycleOp = (this->*lookup[opcode].operate)();
         cycles += (addCycleAddr & addCycleOp);
-        cpuLog << cpuLog_clean() << std::endl;
+        //cpuLog << cpuLog_clean() << std::endl;
 
     }
-    std::cout << cpuStatusLog() << std::endl;
+    //std::cout << cpuStatusLog() << std::endl;
     --cycles;
 }
 
