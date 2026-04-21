@@ -22,7 +22,7 @@ bool Mapper000::modCpuWrite(uint16_t addr, uint32_t &mappedAddr){
 
 bool Mapper000::modPpuRead(uint16_t addr, uint32_t &mappedAddr){
     //ppu has a very limited range so no extra mapping is needed for its functionality (just have to check if the addr is in range)
-    if(addr >= 0x0000 && 0x1FFF){
+    if(addr >= 0x0000 && addr <= 0x1FFF){
         mappedAddr = addr;
         return true;
     }

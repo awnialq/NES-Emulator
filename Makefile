@@ -1,10 +1,10 @@
 CXX := g++
 WARNINGS := -Wall -Wextra -Wpedantic -Wshadow
-CXXFLAGS := -std=c++20 -O2 $(WARNINGS) -Isrc
+CXXFLAGS := -std=c++20 -O2 $(WARNINGS) -Isrc $(shell sdl2-config --cflags)
 ASMFLAGS := $(filter-out -O%,$(CXXFLAGS)) -O0
 RM := rm -f
 NULLDEV := /dev/null
-LDFLAGS :=
+LDFLAGS := $(shell sdl2-config --libs)
 PROFILE_CXXFLAGS := $(CXXFLAGS) -pg
 PROFILE_LDFLAGS := $(LDFLAGS) -pg
 

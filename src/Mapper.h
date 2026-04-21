@@ -8,8 +8,8 @@
 class Mapper{
     public:
         Mapper(uint8_t prgBanks, uint8_t chrBanks);
-        ~Mapper();
-    private:
+        virtual ~Mapper();
+
         virtual bool modCpuRead(uint16_t addr, uint32_t &mappedAddr);
         virtual bool modCpuWrite(uint16_t addr, uint32_t &mappedAddr);
         virtual bool modPpuRead(uint16_t addr, uint32_t &mappedAddr);
