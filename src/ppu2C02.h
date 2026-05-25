@@ -3,6 +3,7 @@
 #include <iostream>
 #include "cartridge.h"
 #include <array>
+#include <vector>
 
 class ppu2C02{
     public:
@@ -21,6 +22,12 @@ class ppu2C02{
         bool frameComplete = false;
         void connectCart(cartridge *c);
         const std::array<uint32_t, 256 * 240> &getFrameBuffer() const;
+
+        // Public state for CPU/Bus interface
+        bool nmi = false;
+        uint8_t oamAddr = 0x00;
+        std::array<uint8_t, 256> oam{};
+
     private:
         cartridge *cart = nullptr;
         uint8_t status = 0x00;
@@ -29,13 +36,11 @@ class ppu2C02{
         uint8_t addressLatch = 0x00;
         uint8_t ppuDataBuffer = 0x00;
         uint8_t fineX = 0x00;
-        uint8_t oamAddr = 0x00;
         uint16_t vramAddr = 0x0000;
         uint16_t tramAddr = 0x0000;
         int16_t scanline = 0;
         int16_t cycle = 0;
 
-        std::array<uint8_t, 256> oam{};
         std::array<uint32_t, 256 * 240> frameBuffer{};
         std::array<uint32_t, 64> systemPalette{};
 
@@ -46,6 +51,26 @@ class ppu2C02{
         uint8_t readPalette(uint8_t palette, uint8_t pixel);
         uint32_t getColorFromPaletteRam(uint8_t palette, uint8_t pixel);
         void renderBackgroundPixel();
+
+        // Sprite rendering structures and functions
+        struct SpriteInfo {
+            uint8_t index;
+            uint8_t x;
+            uint8_t y;
+            uint8_t tileId;
+            uint8_t attributes;
+            uint8_t patternLsb;
+            uint8_t patternMsb;
+        };
+
+        std::vector<SpriteInfo> activeSprites;
+        void evaluateSprites();
+        void renderPixel();
+
+        // Scrolling helpers
+        void incrementScrollY();
+        void transferAddressX();
+        void transferAddressY();
 };
 
 /*

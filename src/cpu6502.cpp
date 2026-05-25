@@ -41,6 +41,11 @@ void cpu::write(uint16_t addr, uint8_t dest){
     
 }
 void cpu::clock(){
+    if (bus && bus->ppu.nmi) {
+        bus->ppu.nmi = false;
+        nonMskInter();
+    }
+
     if(cycles == 0){
         //printf("Progc: %s\n", std::format("{:#06x}",progc).c_str());
         opcode = read(progc++);
@@ -51,10 +56,10 @@ void cpu::clock(){
         uint8_t addCycleAddr = (this->*lookup[opcode].addrmode)();
         uint8_t addCycleOp = (this->*lookup[opcode].operate)();
         cycles += (addCycleAddr & addCycleOp);
-        //cpuLog << cpuLog_clean() << std::endl;
+        cpuLog << cpuLog_clean() << std::endl;
 
     }
-    //std::cout << cpuStatusLog() << std::endl;
+    // std::cout << cpuStatusLog() << std::endl;
     --cycles;
 }
 
@@ -128,8 +133,8 @@ void cpu::interruptReq(){
         write(0x0100 + stackp, status);//write the status register to the stack (it is already 8 bits so we don't have to do any funny stuff)
         stackp--;
         addr_absolute = 0xfffe; //hard coded value that tells you where the new value of the progc should be
-        uint16_t hi = read(addr_absolute);
-        uint16_t lo = read(addr_absolute + 1);
+        uint16_t lo = read(addr_absolute);
+        uint16_t hi = read(addr_absolute + 1);
         progc = (hi << 8) | lo;
         cycles = 7; //same reason why we did what we did in reset.
     }
@@ -147,8 +152,8 @@ void cpu::nonMskInter(){    //does the same as interruptReq but can't be stopped
     write(0x0100 + stackp, status);//write the status register to the stack (it is already 8 bits so we don't have to do any funny stuff)
     stackp--;
     addr_absolute = 0xfffa; //hard coded value that tells you where the new value of the progc should be
-    uint16_t hi = read(addr_absolute);
-    uint16_t lo = read(addr_absolute + 1);
+    uint16_t lo = read(addr_absolute);
+    uint16_t hi = read(addr_absolute + 1);
     progc = (hi << 8) | lo;
     cycles = 8; //same reason why we did what we did in reset.
 }
@@ -316,16 +321,23 @@ uint8_t cpu::ADC(){
 }
 
 uint8_t cpu::ASL(){
-    fetch();
-    setFlag(C, fetched >> 7);
-    fetched = fetched << 1;
-    setFlag(Z, fetched == 0x00);
-    setFlag(N, fetched >> 7);
+    uint8_t val;
     if(lookup[opcode].addrmode == &cpu::IMP){
-        accum = fetched;
+        val = accum;
     }
     else{
-        write(addr_absolute, fetched);
+        fetch();
+        val = fetched;
+    }
+    setFlag(C, (val >> 7) != 0);
+    val = val << 1;
+    setFlag(Z, val == 0x00);
+    setFlag(N, (val >> 7) != 0);
+    if(lookup[opcode].addrmode == &cpu::IMP){
+        accum = val;
+    }
+    else{
+        write(addr_absolute, val);
     }
     return 0;
 }
@@ -613,32 +625,50 @@ uint8_t cpu::CPX(){
 }
 
 uint8_t cpu::ROR(){
-    fetch();
-    uint16_t temp = (uint16_t)(getFlag(C) << 7) | (fetched >> 1); // prepare the rotated value
-    setFlag(C,fetched & 0x01);
-    setFlag(Z, (temp & 0x00ff) == 0x00);
-    setFlag(N, temp & 0x0080);   //Checks the value of the msb to check sign
-    if(lookup[opcode].addrmode == &cpu::IMP){   //if the addressing mode is applied, act on the accumulator instead
-        accum = temp & 0x00ff;
+    uint8_t val;
+    if(lookup[opcode].addrmode == &cpu::IMP){
+        val = accum;
     }
     else{
-        write(addr_absolute, temp & 0x00ff);
+        fetch();
+        val = fetched;
+    }
+    uint8_t originalCarry = getFlag(C);
+    setFlag(C, (val & 0x01) != 0);
+    val = (val >> 1) | (originalCarry << 7);
+    setFlag(Z, val == 0x00);
+    setFlag(N, (val >> 7) != 0);
+    if(lookup[opcode].addrmode == &cpu::IMP){
+        accum = val;
+    }
+    else{
+        write(addr_absolute, val);
     }
     return 0;
 }
 
 uint8_t cpu::ROL(){
-    fetch();
-    setFlag(C, fetched >> 7);
-    fetched = fetched << 1;
-    if(getFlag(C) == 1){fetched |= 0x01;}
-    setFlag(Z, fetched == 0);
-    setFlag(N, fetched >> 7);
+    uint8_t val;
     if(lookup[opcode].addrmode == &cpu::IMP){
-        accum = fetched;
+        val = accum;
     }
     else{
-        write(addr_absolute, fetched);
+        fetch();
+        val = fetched;
+    }
+    uint8_t originalCarry = getFlag(C);
+    setFlag(C, (val >> 7) != 0);
+    val = val << 1;
+    if(originalCarry == 1){
+        val |= 0x01;
+    }
+    setFlag(Z, val == 0);
+    setFlag(N, (val >> 7) != 0);
+    if(lookup[opcode].addrmode == &cpu::IMP){
+        accum = val;
+    }
+    else{
+        write(addr_absolute, val);
     }
     return 0;
 }
@@ -653,16 +683,23 @@ uint8_t cpu::EOR(){ //exclusive or
 }
 
 uint8_t cpu::LSR(){ //Logical Shift Right implementation
-    fetch();
-    setFlag(C, fetched & 0x0001);
-    fetched = fetched >> 1;
-    setFlag(Z, fetched == 0);
-    setFlag(N, 0);
+    uint8_t val;
     if(lookup[opcode].addrmode == &cpu::IMP){
-        accum = fetched;
+        val = accum;
     }
     else{
-        write(addr_absolute, fetched);
+        fetch();
+        val = fetched;
+    }
+    setFlag(C, (val & 0x01) != 0);
+    val = val >> 1;
+    setFlag(Z, val == 0);
+    setFlag(N, 0);
+    if(lookup[opcode].addrmode == &cpu::IMP){
+        accum = val;
+    }
+    else{
+        write(addr_absolute, val);
     }
     return 0;
 }
