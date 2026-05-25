@@ -12,3 +12,4 @@ test
 *.s
 /bin/
 *.out
+/md/
