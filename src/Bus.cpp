@@ -29,10 +29,18 @@ void Bus::cpuWrite(uint16_t addr, uint8_t data){
     }
 
     if(addr >= 0x0000 && addr <= 0x1FFF){
-        cpuMem[addr & 0x1FFF] = data;
+        cpuMem[addr & 0x07FF] = data;
     }
     else if(addr >= 0x2000 && addr <= 0x3FFF){
         ppu.cpuWrite(addr & 0x0007, data);  //implement addr mirroring
+    }
+    else if(addr == 0x4014){
+        // OAM DMA transfer
+        uint16_t dmaSrc = static_cast<uint16_t>(data) << 8;
+        for(int i = 0; i < 256; i++){
+            ppu.oam[ppu.oamAddr] = cpuRead(dmaSrc + i);
+            ppu.oamAddr++;
+        }
     }
     else if(addr == 0x4016){
         controllerStrobe = (data & 0x01) != 0;
@@ -63,10 +71,10 @@ uint8_t Bus::cpuRead(uint16_t addr, bool readOnly){
     else if(addr == 0x4016 || addr == 0x4017){
         uint8_t port = static_cast<uint8_t>(addr & 0x0001);
         if(controllerStrobe){
-            data = (controller[port] & 0x80) > 0;
+            data = (controller[port] & 0x80) ? 0x01 : 0x00;
         }
         else{
-            data = (controllerState[port] & 0x80) > 0;
+            data = (controllerState[port] & 0x80) ? 0x01 : 0x00;
             controllerState[port] <<= 1;
         }
     }
