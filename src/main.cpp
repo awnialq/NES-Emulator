@@ -122,8 +122,7 @@ int main(int argc, char* argv[]) {
                 // granularity on most desktops is ~1 ms).
                 const auto now = clock::now();
                 if(next_frame_deadline > now){
-                    const auto sleep_until_point = next_frame_deadline -
-                        std::chrono::microseconds(500);
+                    const auto sleep_until_point = next_frame_deadline - std::chrono::microseconds(500);
                     if(sleep_until_point > now){
                         std::this_thread::sleep_until(sleep_until_point);
                     }
