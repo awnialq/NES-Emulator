@@ -545,7 +545,7 @@ uint8_t cpu::CMP(){
     fetch();
     setFlag(C, accum >= fetched);
     setFlag(Z, accum == fetched);
-    setFlag(N, (accum - fetched) >> 7 );
+    setFlag(N, (uint8_t)(accum - fetched) >> 7);
     return 1;
 }
 
@@ -611,7 +611,7 @@ uint8_t cpu::CPY(){
     fetch();
     setFlag(C, y >= fetched);   //These are kinda lazy implementations instead of doing the subtraction like how the cpu would actuall do it
     setFlag(Z, y == fetched);
-    setFlag(N, (y - fetched) >> 7);
+    setFlag(N, (uint8_t)(y - fetched) >> 7);
     return 0; 
 }
 
@@ -619,7 +619,7 @@ uint8_t cpu::CPX(){
     fetch();
     setFlag(C, x >= fetched);
     setFlag(Z, x == fetched);
-    setFlag(N, (x - fetched) >> 7);
+    setFlag(N, (uint8_t)(x - fetched) >> 7);
     return 0;
 }
 

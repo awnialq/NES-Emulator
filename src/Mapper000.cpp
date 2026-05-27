@@ -12,10 +12,9 @@ bool Mapper000::modCpuRead(uint16_t addr, uint32_t &mappedAddr){
     return false;
 }
 
-bool Mapper000::modCpuWrite(uint16_t addr, uint32_t &mappedAddr){
+bool Mapper000::modCpuWrite(uint16_t addr, uint8_t, uint32_t &){
     if(addr >= 0x8000 && addr <= 0xFFFF){
-        mappedAddr = addr & (numPrgBanks > 1 ? 0x7FFF : 0x3FFF); //if there is more than one bank then mirror a larger range of addresses.
-        return true;
+        return false;
     }
     return false;
 }

@@ -21,7 +21,7 @@ ASM_FILES := $(SOURCES:$(SRC_DIR)/%.cpp=$(BIN_DIR)/%.s)
 CPU_TARGET := $(BIN_DIR)/cpu-test
 PROFILE_CPU_TARGET := $(BIN_DIR)/cpu-test-prof
 # CPU sources need to be specific if they are a subset, or we can use filter
-CPU_SOURCES_NAMES := cpu6502.cpp Bus.cpp cartridge.cpp main.cpp
+CPU_SOURCES_NAMES := cpu6502.cpp Bus.cpp cartridge.cpp main.cpp ppu2C02.cpp Mapper.cpp Mapper000.cpp Mapper003.cpp
 CPU_SOURCES := $(addprefix $(SRC_DIR)/, $(CPU_SOURCES_NAMES))
 CPU_OBJECTS := $(CPU_SOURCES:$(SRC_DIR)/%.cpp=$(BIN_DIR)/%.o)
 PROFILE_CPU_OBJECTS := $(CPU_SOURCES:$(SRC_DIR)/%.cpp=$(BIN_DIR)/%.prof.o)

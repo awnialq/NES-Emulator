@@ -13,7 +13,7 @@ bool Mapper::modCpuRead(uint16_t, uint32_t &){
     return false;
 }
 
-bool Mapper::modCpuWrite(uint16_t, uint32_t &){
+bool Mapper::modCpuWrite(uint16_t, uint8_t, uint32_t &){
     return false;
 }
 

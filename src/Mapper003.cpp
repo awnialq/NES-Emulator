@@ -6,24 +6,30 @@ Mapper003::~Mapper003(){}
 
 bool Mapper003::modCpuRead(uint16_t addr, uint32_t &mappedAddr){
     if(addr >= 0x8000 && addr <= 0xFFFF){
-        mappedAddr = addr & 0x7FFF; //mirror the first 32KB of the cartridge ROM
+        mappedAddr = addr & (numPrgBanks > 1 ? 0x7FFF : 0x3FFF);
         return true;
     }
     return false;
 }
 
-bool Mapper003::modCpuWrite(uint16_t addr, uint32_t &mappedAddr){
+bool Mapper003::modCpuWrite(uint16_t addr, uint8_t data, uint32_t &mappedAddr){
     if(addr >= 0x8000 && addr <= 0xFFFF){
-        mappedAddr = addr & 0x7FFF; //mirror the first 32KB of the cartridge ROM
+        if(numChrBanks > 0){
+            chrBankSelect = data & 0x03;
+            chrBankSelect %= numChrBanks;
+        }
+
+        // Mapper 003 writes update the CHR bank select register rather than PRG ROM.
+        // Signal to the cartridge that no PRG memory write should occur.
+        mappedAddr = UINT32_MAX;
         return true;
     }
     return false;
 }
 
 bool Mapper003::modPpuRead(uint16_t addr, uint32_t &mappedAddr){
-    //ppu has a very limited range so no extra mapping is needed for its functionality (just have to check if the addr is in range)
     if(addr >= 0x0000 && addr <= 0x1FFF){
-        mappedAddr = addr;
+        mappedAddr = (chrBankSelect * 0x2000) + addr;
         return true;
     }
     return false;

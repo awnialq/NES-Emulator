@@ -11,7 +11,7 @@ class Mapper{
         virtual ~Mapper();
 
         virtual bool modCpuRead(uint16_t addr, uint32_t &mappedAddr);
-        virtual bool modCpuWrite(uint16_t addr, uint32_t &mappedAddr);
+        virtual bool modCpuWrite(uint16_t addr, uint8_t data, uint32_t &mappedAddr);
         virtual bool modPpuRead(uint16_t addr, uint32_t &mappedAddr);
         virtual bool modPpuWrite(uint16_t addr, uint32_t &mappedAddr);
     protected:

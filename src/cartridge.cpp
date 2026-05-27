@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <string>
 #include "Mapper000.h"
+#include "Mapper003.h"
 
 using crt = cartridge;
 
@@ -40,6 +41,9 @@ uint8_t crt::initCart(){
     if(mapperID == 0){
         mapper = std::make_shared<Mapper000>(header[4], header[5]);
     }
+    else if(mapperID == 3){
+        mapper = std::make_shared<Mapper003>(header[4], header[5]);
+    }
     else{
         std::cout << "Error: unsupported mapper " << static_cast<int>(mapperID) << std::endl;
         return 0;
@@ -60,7 +64,10 @@ bool crt::cpuRead(uint16_t addr, uint8_t &data){
 
 bool crt::cpuWrite(uint16_t addr, uint8_t data){
     uint32_t mappedAddr = 0;
-    if(mapper && mapper->modCpuWrite(addr, mappedAddr)){
+    if(mapper && mapper->modCpuWrite(addr, data, mappedAddr)){
+        if(mappedAddr == UINT32_MAX){
+            return true;
+        }
         prgMem[mappedAddr % prgMem.size()] = data;
         return true;
     }

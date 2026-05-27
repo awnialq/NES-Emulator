@@ -10,11 +10,11 @@ class ppu2C02{
         ppu2C02();
         ~ppu2C02();
 
-        //Connection to main bus
+        //connection to cpu bus
         uint8_t cpuRead(uint16_t addr, bool readOnly);
         void cpuWrite(uint16_t addr, uint8_t data);
 
-        //Connection to PPU bus
+        //connection to ppu bus
         uint8_t ppuRead(uint16_t addr, bool readOnly);
         void ppuWrite(uint16_t addr, uint8_t data);
 
@@ -23,7 +23,7 @@ class ppu2C02{
         void connectCart(cartridge *c);
         const std::array<uint32_t, 256 * 240> &getFrameBuffer() const;
 
-        // Public state for CPU/Bus interface
+        // ppu state variables that the bus needs to access
         bool nmi = false;
         uint8_t oamAddr = 0x00;
         std::array<uint8_t, 256> oam{};
@@ -52,7 +52,7 @@ class ppu2C02{
         uint32_t getColorFromPaletteRam(uint8_t palette, uint8_t pixel);
         void renderBackgroundPixel();
 
-        // Sprite rendering structures and functions
+        // sprite rendering
         struct SpriteInfo {
             uint8_t index;
             uint8_t x;
@@ -67,7 +67,7 @@ class ppu2C02{
         void evaluateSprites();
         void renderPixel();
 
-        // Scrolling helpers
+        // helpers
         void incrementScrollY();
         void transferAddressX();
         void transferAddressY();

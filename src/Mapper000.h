@@ -8,7 +8,7 @@ class Mapper000 : public Mapper{    //Inherit the base mapper class
 
     public:
         bool modCpuRead(uint16_t addr, uint32_t &mappedAddr);
-        bool modCpuWrite(uint16_t addr, uint32_t &mappedAddr);
+        bool modCpuWrite(uint16_t addr, uint8_t data, uint32_t &mappedAddr);
         bool modPpuRead(uint16_t addr, uint32_t &mappedAddr);
         bool modPpuWrite(uint16_t addr, uint32_t &mappedAddr);
 };
