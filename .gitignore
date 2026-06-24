@@ -13,3 +13,4 @@ test
 /bin/
 *.out
 /md/
+.DS_store
