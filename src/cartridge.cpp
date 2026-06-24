@@ -2,7 +2,6 @@
 #include <cstdio>
 #include <fstream>
 #include <iostream>
-#include <assert.h>
 #include <string>
 #include "Mapper000.h"
 #include "Mapper003.h"
@@ -16,7 +15,10 @@ crt::cartridge(char *rp){
 //ret 1 if the cart inits properly
 uint8_t crt::initCart(){
     std::ifstream nesStream(romPath,std::ios::binary);
-    assert(nesStream.is_open());
+    if(!nesStream.is_open()){
+        std::cout << "Error: could not open ROM file " << romPath << std::endl;
+        return 0;
+    }
     nesStream.read(reinterpret_cast<char *>(header),16);
     if(!(header[0] == 'N' && header[1] == 'E' && header[2] == 'S' && header[3] == 0x1A)){
         std::cout << "Error: file " << romPath << " not in iNES format" << std::endl;

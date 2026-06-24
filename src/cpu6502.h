@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-#include <fstream>
 
 class Bus;
 
@@ -37,7 +36,6 @@ class cpu6502{
         void interruptReq(); //Can be ignored with the Disable Interruptions Flag is active
         void nonMskInter(); //CAN NOT be ignored
         std::string cpuStatusLog();
-        std::string cpuLog_clean();
         std::string addrmodeName(uint8_t(cpu6502::*addrmode)());
 
         uint8_t fetch();
@@ -152,5 +150,4 @@ class cpu6502{
                             { "CPX", &cpu6502::CPX, &cpu6502::IMM, 2 },{ "SBC", &cpu6502::SBC, &cpu6502::INDX, 6 },{ "???", &cpu6502::NOP, &cpu6502::IMP, 2 },{ "???", &cpu6502::DUM, &cpu6502::IMP, 8 },{ "CPX", &cpu6502::CPX, &cpu6502::ZP0, 3 },{ "SBC", &cpu6502::SBC, &cpu6502::ZP0, 3 },{ "INC", &cpu6502::INC, &cpu6502::ZP0, 5 },{ "???", &cpu6502::DUM, &cpu6502::IMP, 5 },{ "INX", &cpu6502::INX, &cpu6502::IMP, 2 },{ "SBC", &cpu6502::SBC, &cpu6502::IMM, 2 },{ "NOP", &cpu6502::NOP, &cpu6502::IMP, 2 },{ "???", &cpu6502::SBC, &cpu6502::IMP, 2 },{ "CPX", &cpu6502::CPX, &cpu6502::ABS, 4 },{ "SBC", &cpu6502::SBC, &cpu6502::ABS, 4 },{ "INC", &cpu6502::INC, &cpu6502::ABS, 6 },{ "???", &cpu6502::DUM, &cpu6502::IMP, 6 },
                             { "BEQ", &cpu6502::BEQ, &cpu6502::REL, 2 },{ "SBC", &cpu6502::SBC, &cpu6502::INDY, 5 },{ "???", &cpu6502::DUM, &cpu6502::IMP, 2 },{ "???", &cpu6502::DUM, &cpu6502::IMP, 8 },{ "???", &cpu6502::NOP, &cpu6502::ZPX, 4 },{ "SBC", &cpu6502::SBC, &cpu6502::ZPX, 4 },{ "INC", &cpu6502::INC, &cpu6502::ZPX, 6 },{ "???", &cpu6502::DUM, &cpu6502::IMP, 6 },{ "SED", &cpu6502::SED, &cpu6502::IMP, 2 },{ "SBC", &cpu6502::SBC, &cpu6502::ABY, 4 },{ "NOP", &cpu6502::NOP, &cpu6502::IMP, 2 },{ "???", &cpu6502::DUM, &cpu6502::IMP, 7 },{ "???", &cpu6502::NOP, &cpu6502::ABX, 4 },{ "SBC", &cpu6502::SBC, &cpu6502::ABX, 4 },{ "INC", &cpu6502::INC, &cpu6502::ABX, 7 },{ "???", &cpu6502::DUM, &cpu6502::IMP, 7 },
 	};
-        std::ofstream cpuLog;
 };

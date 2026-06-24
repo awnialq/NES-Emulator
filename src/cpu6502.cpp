@@ -6,15 +6,11 @@
 #include <cstdlib>
 #include <string>
 #include <format>
-#include <cassert>
 
 using cpu = cpu6502; //Creates a temporary naming variable to make the table more simple.
 
 cpu::cpu6502(char *romPath){
     bus = new Bus(romPath);
-    cpuLog.open("/tmp/cpu_log.txt", std::ios::out | std::ios::trunc); // Overwrite each run
-    assert(cpuLog.is_open());
-    cpuLog << cpuLog_clean() << std::endl;
 }
 
 
@@ -85,11 +81,6 @@ std::string cpu::cpuStatusLog(){
     + " I: " + std::to_string(((this->status >> 2) & 0x01)) + " B: " + std::to_string(((this->status >> 4) & 0x01))
     + " V: " + std::to_string(((this->status >> 6) & 0x01)) + " N: " + std::to_string(((this->status >> 7) & 0x01));
 }
-
-std::string cpu::cpuLog_clean(){
-    return std::format("pc: {:04x} a: {:02x} x: {:02x} y: {:02x} p: {:02x} sp: {:02x}", this->progc, this->accum, this->x, this->y, this->status, this->stackp);
-}
-
 
 void cpu::setFlag(FLAGS6502 f, bool v){
     
