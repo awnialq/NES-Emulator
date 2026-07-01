@@ -12,8 +12,8 @@ using cpu = cpu6502; //Creates a temporary naming variable to make the table mor
 
 cpu::cpu6502(char *romPath){
     bus = new Bus(romPath);
-    cpuLog.open("/tmp/cpu_log.txt", std::ios::out | std::ios::trunc); // Overwrite each run
-    assert(cpuLog.is_open());
+    //cpuLog.open("/tmp/cpu_log.txt", std::ios::out | std::ios::trunc); // Overwrite each run
+    //assert(cpuLog.is_open());
     cpuLog << cpuLog_clean() << std::endl;
 }
 

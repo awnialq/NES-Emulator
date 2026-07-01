@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include "apu2A03.h"
 #include "cpu6502.h"
 #include "cartridge.h"
 #include "ppu2C02.h"
@@ -26,6 +27,7 @@ class Bus{
     public:
         std::array<uint8_t, 2048> cpuMem; 
         ppu2C02 ppu;
+        apu2A03 apu;
         void cpuWrite(uint16_t addr, uint8_t data);
         uint8_t cpuRead(uint16_t addr, bool readOnly = false);
         void clock();
@@ -33,6 +35,7 @@ class Bus{
         //void reset();
         //void clock();
         cartridge *cart = nullptr;
+        double audio_sample = 0.0;  // so sdl can read the audio sample and output it without issue
     private:
         std::array<uint8_t, 2> controller{};
         std::array<uint8_t, 2> controllerState{};

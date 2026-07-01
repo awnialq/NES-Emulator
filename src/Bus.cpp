@@ -31,6 +31,11 @@ void Bus::cpuWrite(uint16_t addr, uint8_t data){
     if(addr >= 0x0000 && addr <= 0x1FFF){
         cpuMem[addr & 0x07FF] = data;
     }
+
+    else if((addr >= 0x4000 && addr <= 0x4013) || addr == 0x4015 || addr == 0x4017){ //apu ranges
+        apu.cpuWrite(addr, data);
+    }
+
     else if(addr >= 0x2000 && addr <= 0x3FFF){
         ppu.cpuWrite(addr & 0x0007, data);  //implement addr mirroring
     }
@@ -83,6 +88,7 @@ uint8_t Bus::cpuRead(uint16_t addr, bool readOnly){
 
 void Bus::clock(){
     ppu.clock();
+    apu.clock();
     clockCntr++;
 }
 

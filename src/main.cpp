@@ -6,6 +6,138 @@
 #include <thread>
 #include <SDL.h>
 
+namespace {
+constexpr int kFrameWidth = 256;
+constexpr int kFrameHeight = 240;
+constexpr int kWindowScale = 3;
+
+struct SdlFrontend {
+    SDL_Window *window = nullptr;
+    SDL_Renderer *renderer = nullptr;
+    SDL_Texture *texture = nullptr;
+    SDL_AudioDeviceID audioDevice = 0;
+
+    ~SdlFrontend() {
+        shutdown();
+    }
+
+    bool initialize() {
+        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
+            std::cerr << "SDL init failed: " << SDL_GetError() << std::endl;
+            return false;
+        }
+
+        window = SDL_CreateWindow(
+            "NES Emulator",
+            SDL_WINDOWPOS_CENTERED,
+            SDL_WINDOWPOS_CENTERED,
+            kFrameWidth * kWindowScale,
+            kFrameHeight * kWindowScale,
+            SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
+        );
+        if (!window) {
+            std::cerr << "Window creation failed: " << SDL_GetError() << std::endl;
+            shutdown();
+            return false;
+        }
+
+        // We pace ourselves to the NES's native frame rate (see frame_period
+        // below), so we deliberately don't enable SDL_RENDERER_PRESENTVSYNC --
+        // letting the host display refresh gate us would warp emulation speed
+        // on anything that isn't a 60 Hz panel (75/120/144/ProMotion, etc.).
+        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+        if (!renderer) {
+            std::cerr << "Renderer creation failed: " << SDL_GetError() << std::endl;
+            shutdown();
+            return false;
+        }
+
+        // Keep NES framebuffer aspect ratio while allowing window resizing.
+        SDL_RenderSetLogicalSize(renderer, kFrameWidth, kFrameHeight);
+
+        texture = SDL_CreateTexture(
+            renderer,
+            SDL_PIXELFORMAT_ARGB8888,
+            SDL_TEXTUREACCESS_STREAMING,
+            kFrameWidth,
+            kFrameHeight
+        );
+
+        if (!texture) {
+            std::cerr << "Texture creation failed: " << SDL_GetError() << std::endl;
+            shutdown();
+            return false;
+        }
+
+        // Reserve an audio device now so the frontend can grow into real APU
+        // output without changing the overall emulator loop structure.
+        SDL_AudioSpec desired{};
+        desired.freq = 44100;
+        desired.format = AUDIO_F32;
+        desired.channels = 1;
+        desired.samples = 512;
+
+        SDL_AudioSpec obtained{};
+        audioDevice = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, 0);
+        if (!audioDevice) {
+            std::cerr << "Audio device unavailable: " << SDL_GetError() << std::endl;
+        } else {
+            SDL_PauseAudioDevice(audioDevice, 0);
+        }
+
+        return true;
+    }
+
+    template <typename FrameBuffer>
+    void presentFrame(const FrameBuffer &frameBuffer) {
+        SDL_UpdateTexture(texture, nullptr, frameBuffer.data(), kFrameWidth * static_cast<int>(sizeof(uint32_t)));
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+        SDL_RenderPresent(renderer);
+    }
+
+    void shutdown() {
+        if (audioDevice) {
+            SDL_CloseAudioDevice(audioDevice);
+            audioDevice = 0;
+        }
+
+        if (texture) {
+            SDL_DestroyTexture(texture);
+            texture = nullptr;
+        }
+
+        if (renderer) {
+            SDL_DestroyRenderer(renderer);
+            renderer = nullptr;
+        }
+
+        if (window) {
+            SDL_DestroyWindow(window);
+            window = nullptr;
+        }
+
+        SDL_Quit();
+    }
+};
+
+uint8_t readController1State() {
+    const uint8_t *keys = SDL_GetKeyboardState(nullptr);
+    uint8_t controller1 = 0x00;
+
+    if (keys[SDL_SCANCODE_A]) controller1 |= Bus::BUTTON_A;
+    if (keys[SDL_SCANCODE_D]) controller1 |= Bus::BUTTON_B;
+    if (keys[SDL_SCANCODE_MINUS] || keys[SDL_SCANCODE_KP_MINUS]) controller1 |= Bus::BUTTON_SELECT;
+    if (keys[SDL_SCANCODE_EQUALS] || keys[SDL_SCANCODE_KP_PLUS]) controller1 |= Bus::BUTTON_START;
+    if (keys[SDL_SCANCODE_UP]) controller1 |= Bus::BUTTON_UP;
+    if (keys[SDL_SCANCODE_DOWN]) controller1 |= Bus::BUTTON_DOWN;
+    if (keys[SDL_SCANCODE_LEFT]) controller1 |= Bus::BUTTON_LEFT;
+    if (keys[SDL_SCANCODE_RIGHT]) controller1 |= Bus::BUTTON_RIGHT;
+
+    return controller1;
+}
+} // namespace
+
 int main(int argc, char* argv[]) {
     if (argc <= 1){
         std::cout << "How to use: *executable name* {path to rom}" << std::endl;
@@ -16,53 +148,8 @@ int main(int argc, char* argv[]) {
         cpu6502 cpu(argv[1]);
         cpu.reset();
 
-        if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-            std::cerr << "SDL init failed: " << SDL_GetError() << std::endl;
-            return 1;
-        }
-
-        SDL_Window *window = SDL_CreateWindow(
-            "NES Emulator",
-            SDL_WINDOWPOS_CENTERED,
-            SDL_WINDOWPOS_CENTERED,
-            256 * 3,
-            240 * 3,
-            SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
-        );
-        if(!window){
-            std::cerr << "Window creation failed: " << SDL_GetError() << std::endl;
-            SDL_Quit();
-            return 1;
-        }
-
-        // We pace ourselves to the NES's native frame rate (see frame_period
-        // below), so we deliberately don't enable SDL_RENDERER_PRESENTVSYNC --
-        // letting the host display refresh gate us would warp emulation speed
-        // on anything that isn't a 60 Hz panel (75/120/144/ProMotion, etc.).
-        SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-        if(!renderer){
-            std::cerr << "Renderer creation failed: " << SDL_GetError() << std::endl;
-            SDL_DestroyWindow(window);
-            SDL_Quit();
-            return 1;
-        }
-
-        // Keep NES framebuffer aspect ratio while allowing window resizing.
-        SDL_RenderSetLogicalSize(renderer, 256, 240);
-
-        SDL_Texture *texture = SDL_CreateTexture(
-            renderer,
-            SDL_PIXELFORMAT_ARGB8888,
-            SDL_TEXTUREACCESS_STREAMING,
-            256,
-            240
-        );
-
-        if(!texture){
-            std::cerr << "Texture creation failed: " << SDL_GetError() << std::endl;
-            SDL_DestroyRenderer(renderer);
-            SDL_DestroyWindow(window);
-            SDL_Quit();
+        SdlFrontend frontend;
+        if (!frontend.initialize()) {
             return 1;
         }
 
@@ -96,25 +183,10 @@ int main(int argc, char* argv[]) {
                     }
                 }
 
-                const uint8_t *keys = SDL_GetKeyboardState(nullptr);
-                uint8_t controller1 = 0x00;
-
-                if(keys[SDL_SCANCODE_A]) controller1 |= Bus::BUTTON_A;          // NES A
-                if(keys[SDL_SCANCODE_D]) controller1 |= Bus::BUTTON_B;          // NES B
-                if(keys[SDL_SCANCODE_MINUS] || keys[SDL_SCANCODE_KP_MINUS]) controller1 |= Bus::BUTTON_SELECT;
-                if(keys[SDL_SCANCODE_EQUALS] || keys[SDL_SCANCODE_KP_PLUS]) controller1 |= Bus::BUTTON_START;
-                if(keys[SDL_SCANCODE_UP]) controller1 |= Bus::BUTTON_UP;
-                if(keys[SDL_SCANCODE_DOWN]) controller1 |= Bus::BUTTON_DOWN;
-                if(keys[SDL_SCANCODE_LEFT]) controller1 |= Bus::BUTTON_LEFT;
-                if(keys[SDL_SCANCODE_RIGHT]) controller1 |= Bus::BUTTON_RIGHT;
-
-                cpu.bus->setControllerState(0, controller1);
+                cpu.bus->setControllerState(0, readController1State());
 
                 const auto &fb = cpu.bus->ppu.getFrameBuffer();
-                SDL_UpdateTexture(texture, nullptr, fb.data(), 256 * static_cast<int>(sizeof(uint32_t)));
-                SDL_RenderClear(renderer);
-                SDL_RenderCopy(renderer, texture, nullptr, nullptr);
-                SDL_RenderPresent(renderer);
+                frontend.presentFrame(fb);
 
                 // Real-time pacing: hold the loop until the next NES frame
                 // tick. sleep_until handles the bulk of the wait cheaply; the
@@ -146,14 +218,9 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        SDL_DestroyTexture(texture);
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(window);
-        SDL_Quit();
     } catch(std::exception &e){
         std::cerr << e.what() << " - Aborting process" << std::endl;
         return 1;
     }
     return 0;
 }
-
