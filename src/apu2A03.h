@@ -15,6 +15,13 @@ class apu2A03{
         double get_sample();
     
     private:
+        struct sequencer{
+            uint32_t sequencer = 0x00000000;
+            uint16_t timer = 0x0000;
+            uint16_t reload = 0x0000;
+            uint8_t output = 0x00;
+        };
+        
         bool active_pulse1 = false;
         double pulse1 = 0.0;
 
