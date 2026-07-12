@@ -14,6 +14,7 @@ apu::~apu2A03(){
 
 void apu::cpuWrite(uint16_t addr, uint8_t data){
     switch(addr){
+        /* pulse wave 1 and 2 cases */
         case 0x4000:
             pulse1.duty = (data & 0xc0) >> 6;
             pulse1.length_counter_halt = (data & 0x20) > 0;
@@ -56,8 +57,23 @@ void apu::cpuWrite(uint16_t addr, uint8_t data){
             pulse2.timer &= 0x00ff;
             pulse2.timer |= (data & 0x07) << 8;
             break;
+        /* triangle wave cases */
+        case 0x4008:
+            triangle.linear_count_control = (data & 0x80) > 0;
+            triangle.linear_count_load = data & 0x7f;
+            break;
+        case 0x400A:
+            triangle.timer &= 0xff00;
+            triangle.timer |= data;
+            break;
+        case 0x400B:
+            triangle.length_counter = (data & 0xf8) >> 3;
+            triangle.linear_count_reload = true;
+            triangle.timer &= 0x00ff;
+            triangle.timer |= (data & 0x07) << 8;
+            break;
         default:
-            // Handle other addresses
+            // temp will add triangle, noise,dmc, status, and frame counter support
             break;
     }
 }
