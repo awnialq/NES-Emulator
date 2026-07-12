@@ -15,10 +15,46 @@ apu::~apu2A03(){
 void apu::cpuWrite(uint16_t addr, uint8_t data){
     switch(addr){
         case 0x4000:
+            pulse1.duty = (data & 0xc0) >> 6;
+            pulse1.length_counter_halt = (data & 0x20) > 0;
+            pulse1.const_volume = (data & 0x10) > 0;
+            pulse1.volume = data & 0x0f;
+            break;
         case 0x4001:
+            pulse1.sweep_active = ((data & 0x80) >> 7) > 0;
+            pulse1.sweep_period = (data & 0x70) >> 4;
+            pulse1.sweep_negate = (data & 0x08) > 0;
+            pulse1.sweep_shift = data & 0x07;
+            break;
         case 0x4002:
+            pulse1.timer &= 0xff00;
+            pulse1.timer |= data;
+            break;
         case 0x4003:
-            // Handle pulse channel writes
+            pulse1.length_counter = (data & 0xf8) >> 3;
+            pulse1.timer &= 0x00ff;
+            pulse1.timer |= (data & 0x07) << 8;
+            break;
+        case 0x4004:
+            pulse2.duty = (data & 0xc0) >> 6;
+            pulse2.length_counter_halt = (data & 0x20) > 0;
+            pulse2.const_volume = (data & 0x10) > 0;
+            pulse2.volume = data & 0x0f;
+            break;
+        case 0x4005:
+            pulse2.sweep_active = ((data & 0x80) >> 7) > 0;
+            pulse2.sweep_period = (data & 0x70) >> 4;
+            pulse2.sweep_negate = (data & 0x08) > 0;
+            pulse2.sweep_shift = data & 0x07;
+            break;
+        case 0x4006:
+            pulse2.timer &= 0xff00;
+            pulse2.timer |= data;
+            break;
+        case 0x4007:
+            pulse2.length_counter = (data & 0xf8) >> 3;
+            pulse2.timer &= 0x00ff;
+            pulse2.timer |= (data & 0x07) << 8;
             break;
         default:
             // Handle other addresses
@@ -36,5 +72,5 @@ void apu::clock(){
 }
 
 double apu::get_sample(){
-    return pulse1;
+    return 0.0f;
 }
