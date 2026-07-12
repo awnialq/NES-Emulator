@@ -15,14 +15,35 @@ class apu2A03{
         double get_sample();
     
     private:
-        struct sequencer{
-            uint32_t sequencer = 0x00000000;
+        struct pulse{
+            uint8_t duty = 0x00;
+            uint8_t volume = 0x00;
+            bool const_volume = false;
+            bool length_counter_halt = false;
             uint16_t timer = 0x0000;
-            uint16_t reload = 0x0000;
-            uint8_t output = 0x00;
+
+            bool sweep_active = false;
+            uint8_t sweep_period = 0x00;
+            uint8_t sweep_shift = 0x00;
+            bool sweep_negate = false;
+            
+            uint16_t current_timer = 0x0000;
+            uint8_t sequence_step = 0x00;
+            
+            uint8_t length_counter = 0x00;
+
+            bool envelope_start = false;
+            uint8_t envelope_divider = 0x00;
+            uint8_t decay_level = 0x00;
+
+            uint8_t sweep_divider = 0x00;
+            bool sweep_reload = false;
+
         };
         
         bool active_pulse1 = false;
-        double pulse1 = 0.0;
+        struct pulse pulse1;
+        struct pulse pulse2;
+
 
 };

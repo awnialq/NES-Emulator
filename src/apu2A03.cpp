@@ -13,7 +13,17 @@ apu::~apu2A03(){
 }
 
 void apu::cpuWrite(uint16_t addr, uint8_t data){
-
+    switch(addr){
+        case 0x4000:
+        case 0x4001:
+        case 0x4002:
+        case 0x4003:
+            // Handle pulse channel writes
+            break;
+        default:
+            // Handle other addresses
+            break;
+    }
 }
 
 uint8_t apu::cpuRead(uint16_t addr){
