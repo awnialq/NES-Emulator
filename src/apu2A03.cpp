@@ -32,9 +32,10 @@ void apu::cpuWrite(uint16_t addr, uint8_t data){
             pulse1.timer |= data;
             break;
         case 0x4003:
-            pulse1.length_counter = (data & 0xf8) >> 3;
+            pulse1.length_counter = length_counter_lookup[(data & 0xf8) >> 3];
             pulse1.timer &= 0x00ff;
             pulse1.timer |= (data & 0x07) << 8;
+            pulse1.envelope_start = true;
             break;
         case 0x4004:
             pulse2.duty = (data & 0xc0) >> 6;
@@ -53,9 +54,10 @@ void apu::cpuWrite(uint16_t addr, uint8_t data){
             pulse2.timer |= data;
             break;
         case 0x4007:
-            pulse2.length_counter = (data & 0xf8) >> 3;
+            pulse2.length_counter = length_counter_lookup[(data & 0xf8) >> 3];
             pulse2.timer &= 0x00ff;
             pulse2.timer |= (data & 0x07) << 8;
+            pulse2.envelope_start = true;
             break;
         /* triangle wave cases */
         case 0x4008:
@@ -67,10 +69,26 @@ void apu::cpuWrite(uint16_t addr, uint8_t data){
             triangle.timer |= data;
             break;
         case 0x400B:
-            triangle.length_counter = (data & 0xf8) >> 3;
+            triangle.length_counter = length_counter_lookup[(data & 0xf8) >> 3];
             triangle.linear_count_reload = true;
             triangle.timer &= 0x00ff;
             triangle.timer |= (data & 0x07) << 8;
+            break;
+        /* Noise wave cases */
+        case 0x400C:
+            noise.length_counter_halt = (data & 0x20) > 0;
+            noise.const_volume = (data & 0x10) > 0;
+            noise.volume = data & 0x0f;
+            break;
+        case 0x400E:
+            noise.noise_mode = (data & 0x80) > 0;
+            noise.noise_period = data & 0x0f;
+            noise.current_timer = noise_period_lookup[noise.noise_period];
+            break;
+        case 0x400F:
+            noise.length_counter_load = (data & 0xf8) >> 3;
+            noise.length_counter = length_counter_lookup[noise.length_counter_load];
+            noise.envelope_start = true;
             break;
         default:
             // temp will add triangle, noise,dmc, status, and frame counter support
