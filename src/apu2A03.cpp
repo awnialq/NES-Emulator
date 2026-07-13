@@ -32,7 +32,9 @@ void apu::cpuWrite(uint16_t addr, uint8_t data){
             pulse1.timer |= data;
             break;
         case 0x4003:
-            pulse1.length_counter = length_counter_lookup[(data & 0xf8) >> 3];
+            if(active_pulse1){
+                pulse1.length_counter = length_counter_lookup[(data & 0xf8) >> 3];
+            }
             pulse1.timer &= 0x00ff;
             pulse1.timer |= (data & 0x07) << 8;
             pulse1.envelope_start = true;
@@ -54,7 +56,9 @@ void apu::cpuWrite(uint16_t addr, uint8_t data){
             pulse2.timer |= data;
             break;
         case 0x4007:
-            pulse2.length_counter = length_counter_lookup[(data & 0xf8) >> 3];
+            if(active_pulse2){
+                pulse2.length_counter = length_counter_lookup[(data & 0xf8) >> 3];
+            }
             pulse2.timer &= 0x00ff;
             pulse2.timer |= (data & 0x07) << 8;
             pulse2.envelope_start = true;
@@ -69,12 +73,14 @@ void apu::cpuWrite(uint16_t addr, uint8_t data){
             triangle.timer |= data;
             break;
         case 0x400B:
-            triangle.length_counter = length_counter_lookup[(data & 0xf8) >> 3];
+            if(active_triangle){
+                triangle.length_counter = length_counter_lookup[(data & 0xf8) >> 3];
+            }
             triangle.linear_count_reload = true;
             triangle.timer &= 0x00ff;
             triangle.timer |= (data & 0x07) << 8;
             break;
-        /* Noise wave cases */
+        /* Noise channel cases */
         case 0x400C:
             noise.length_counter_halt = (data & 0x20) > 0;
             noise.const_volume = (data & 0x10) > 0;
@@ -87,11 +93,24 @@ void apu::cpuWrite(uint16_t addr, uint8_t data){
             break;
         case 0x400F:
             noise.length_counter_load = (data & 0xf8) >> 3;
-            noise.length_counter = length_counter_lookup[noise.length_counter_load];
+            if(active_noise){
+                noise.length_counter = length_counter_lookup[noise.length_counter_load];
+            }
             noise.envelope_start = true;
             break;
+        case 0x4015:
+            active_pulse1 = (data & 0x01) > 0;
+            active_pulse2 = (data & 0x02) > 0;
+            active_triangle = (data & 0x04) > 0;
+            active_noise = (data & 0x08) > 0;
+            active_dmc = (data & 0x10) > 0;
+
+            if(!active_pulse1) pulse1.length_counter = 0;
+            if(!active_pulse2) pulse2.length_counter = 0;
+            if(!active_triangle) triangle.length_counter = 0;
+            if(!active_noise) noise.length_counter = 0;
+            break;
         default:
-            // temp will add triangle, noise,dmc, status, and frame counter support
             break;
     }
 }
@@ -102,7 +121,13 @@ uint8_t apu::cpuRead(uint16_t addr){
 }
 
 void apu::clock(){
-
+    if(turn_to_clock){
+        //put clocking logic here
+        turn_to_clock = false;
+        return;
+    }
+    // if you don't clock rese the flag
+    turn_to_clock = true;
 }
 
 double apu::get_sample(){

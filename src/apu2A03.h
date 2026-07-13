@@ -81,13 +81,35 @@ class apu2A03{
             uint8_t decay_level = 0x00;
         };
 
-        
+        struct dmc_channel{
+            bool irq_enabled = false;
+            bool loop = false;
+            uint8_t rate_index = 0x00;
+            uint16_t current_timer = 0x0000;
+            uint16_t sample_address = 0x0000;
+            uint16_t sample_length = 0x0000;
+
+            uint16_t current_address = 0x0000;
+            uint16_t bytes_remaining = 0x0000;
+
+            uint8_t shift_register = 0x00;
+            uint8_t bits_remaining = 0x00;
+            bool silence_flag = true;
+
+            uint8_t output_level = 0x00;
+        };
 
         bool active_pulse1 = false;
+        bool active_pulse2 = false;
+        bool active_triangle = false;
+        bool active_noise = false;
+        bool active_dmc = false;
         struct pulse pulse1;
         struct pulse pulse2;
         struct triangle_wave triangle;
         struct noise_channel noise;
-
-
-};
+        struct dmc_channel dmc;
+        uint8_t frame_counter = 0x00;
+        uint8_t status = 0x00;
+        bool turn_to_clock = true;
+};  
