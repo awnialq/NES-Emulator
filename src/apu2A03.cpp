@@ -15,6 +15,7 @@ apu::~apu2A03(){
 void apu::cpuWrite(uint16_t addr, uint8_t data){
     switch(addr){
         /* pulse wave 1 and 2 cases */
+        
         case 0x4000:
             pulse1.duty = (data & 0xc0) >> 6;
             pulse1.length_counter_halt = (data & 0x20) > 0;
