@@ -167,6 +167,7 @@ int main(int argc, char* argv[]) {
         while(running){
             // 3 PPU clocks for each CPU clock.
             cpu.clock();
+            cpu.bus->apu.clock();
             cpu.bus->clock();
             cpu.bus->clock();
             cpu.bus->clock();

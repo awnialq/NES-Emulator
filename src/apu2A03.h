@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <array>
 
 class apu2A03{
 
@@ -112,4 +113,8 @@ class apu2A03{
         uint8_t frame_counter = 0x00;
         uint8_t status = 0x00;
         bool turn_to_clock = true;
+        void pulse_clock(bool p1_or_p2);
+        void triangle_clock();
+        void noise_clock();
+        void dmc_clock();
 };  

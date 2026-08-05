@@ -111,6 +111,8 @@ void apu::cpuWrite(uint16_t addr, uint8_t data){
             if(!active_triangle) triangle.length_counter = 0;
             if(!active_noise) noise.length_counter = 0;
             break;
+        case 0x4017:
+            // Handle frame counter register
         default:
             break;
     }
@@ -121,11 +123,36 @@ uint8_t apu::cpuRead(uint16_t addr){
     return 0x00;
 }
 
+void apu::pulse_clock(bool p1_or_p2){
+    if(!p1_or_p2){
+        // clock pulse1
+        if(pulse1.current_timer == 0){  // will run intially which is more hardware accurage ig
+            // Handle pulse1 timer overflow
+            pulse1.current_timer = pulse1.timer;
+            if(pulse1.sequence_step == 7){
+                pulse1.sequence_step = 0;
+            }
+            else{
+                ++pulse1.sequence_step;
+            }
+        }
+        else{
+            --pulse1.current_timer;
+        }   
+
+
+
+
+        turn_to_clock = false;
+    }
+    else{
+        // clock pulse2
+    }
+}
+
 void apu::clock(){
     if(turn_to_clock){
-        //put clocking logic here
-        turn_to_clock = false;
-        return;
+       
     }
     // if you don't clock rese the flag
     turn_to_clock = true;

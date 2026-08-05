@@ -88,7 +88,7 @@ uint8_t Bus::cpuRead(uint16_t addr, bool readOnly){
 
 void Bus::clock(){
     ppu.clock();
-    apu.clock();
+    // don't put apu here lmao this is for ppu clock I should probably rework this eventually haha
     clockCntr++;
 }
 
