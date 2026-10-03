@@ -1,21 +1,82 @@
 #include "cpu6502.h"
 #include "Bus.h"
+#include <array>
 #include <chrono>
+#include <cstdio>
 #include <exception>
 #include <iostream>
 #include <thread>
+#include <vector>
 #include <SDL.h>
 
 namespace {
 constexpr int kFrameWidth = 256;
 constexpr int kFrameHeight = 240;
 constexpr int kWindowScale = 3;
+// Status bar drawn above the PPU output, in NES pixels.
+constexpr int kBarHeight = 12;
+constexpr int kCanvasHeight = kFrameHeight + kBarHeight;
+
+// 5x7 bitmap font: one byte per row, bit 4 is the leftmost column.
+constexpr int kGlyphWidth = 5;
+constexpr int kGlyphHeight = 7;
+using Glyph = std::array<uint8_t, kGlyphHeight>;
+
+constexpr std::array<Glyph, 10> kDigitGlyphs = {{
+    {0x0E, 0x11, 0x13, 0x15, 0x19, 0x11, 0x0E}, // 0
+    {0x04, 0x0C, 0x04, 0x04, 0x04, 0x04, 0x0E}, // 1
+    {0x0E, 0x11, 0x01, 0x02, 0x04, 0x08, 0x1F}, // 2
+    {0x1F, 0x02, 0x04, 0x02, 0x01, 0x11, 0x0E}, // 3
+    {0x02, 0x06, 0x0A, 0x12, 0x1F, 0x02, 0x02}, // 4
+    {0x1F, 0x10, 0x1E, 0x01, 0x01, 0x11, 0x0E}, // 5
+    {0x06, 0x08, 0x10, 0x1E, 0x11, 0x11, 0x0E}, // 6
+    {0x1F, 0x01, 0x02, 0x04, 0x08, 0x08, 0x08}, // 7
+    {0x0E, 0x11, 0x11, 0x0E, 0x11, 0x11, 0x0E}, // 8
+    {0x0E, 0x11, 0x11, 0x0F, 0x01, 0x02, 0x0C}, // 9
+}};
+constexpr Glyph kDotGlyph = {0x00, 0x00, 0x00, 0x00, 0x00, 0x0C, 0x0C};
+constexpr Glyph kFGlyph = {0x1F, 0x10, 0x10, 0x1E, 0x10, 0x10, 0x10};
+constexpr Glyph kPGlyph = {0x1E, 0x11, 0x11, 0x1E, 0x10, 0x10, 0x10};
+constexpr Glyph kSGlyph = {0x0F, 0x10, 0x10, 0x0E, 0x01, 0x01, 0x1E};
+constexpr Glyph kBlankGlyph = {};
+
+const Glyph &glyphFor(char c) {
+    if (c >= '0' && c <= '9') return kDigitGlyphs[c - '0'];
+    switch (c) {
+        case '.': return kDotGlyph;
+        case 'F': return kFGlyph;
+        case 'P': return kPGlyph;
+        case 'S': return kSGlyph;
+        default: return kBlankGlyph;
+    }
+}
+
+// Measures the real presented frame rate, averaged over short windows so the
+// readout doesn't flicker every frame.
+struct FpsCounter {
+    using clock = std::chrono::steady_clock;
+    clock::time_point windowStart = clock::now();
+    int frames = 0;
+    double fps = 0.0;
+
+    void tick() {
+        ++frames;
+        const auto now = clock::now();
+        const std::chrono::duration<double> elapsed = now - windowStart;
+        if (elapsed.count() >= 0.5) {
+            fps = frames / elapsed.count();
+            frames = 0;
+            windowStart = now;
+        }
+    }
+};
 
 struct SdlFrontend {
     SDL_Window *window = nullptr;
     SDL_Renderer *renderer = nullptr;
     SDL_Texture *texture = nullptr;
     SDL_AudioDeviceID audioDevice = 0;
+    std::vector<SDL_Rect> textRects;
 
     ~SdlFrontend() {
         shutdown();
@@ -32,7 +93,7 @@ struct SdlFrontend {
             SDL_WINDOWPOS_CENTERED,
             SDL_WINDOWPOS_CENTERED,
             kFrameWidth * kWindowScale,
-            kFrameHeight * kWindowScale,
+            kCanvasHeight * kWindowScale,
             SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
         );
         if (!window) {
@@ -52,8 +113,9 @@ struct SdlFrontend {
             return false;
         }
 
-        // Keep NES framebuffer aspect ratio while allowing window resizing.
-        SDL_RenderSetLogicalSize(renderer, kFrameWidth, kFrameHeight);
+        // Keep NES framebuffer (plus status bar) aspect ratio while allowing
+        // window resizing.
+        SDL_RenderSetLogicalSize(renderer, kFrameWidth, kCanvasHeight);
 
         texture = SDL_CreateTexture(
             renderer,
@@ -89,11 +151,42 @@ struct SdlFrontend {
     }
 
     template <typename FrameBuffer>
-    void presentFrame(const FrameBuffer &frameBuffer) {
+    void presentFrame(const FrameBuffer &frameBuffer, double fps) {
         SDL_UpdateTexture(texture, nullptr, frameBuffer.data(), kFrameWidth * static_cast<int>(sizeof(uint32_t)));
+        SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
         SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+
+        const SDL_Rect barRect{0, 0, kFrameWidth, kBarHeight};
+        SDL_SetRenderDrawColor(renderer, 0x20, 0x20, 0x20, 0xFF);
+        SDL_RenderFillRect(renderer, &barRect);
+
+        char fpsText[16];
+        std::snprintf(fpsText, sizeof fpsText, "FPS %.1f", fps);
+        SDL_SetRenderDrawColor(renderer, 0xE0, 0xE0, 0xE0, 0xFF);
+        drawText(2, (kBarHeight - kGlyphHeight) / 2, fpsText);
+
+        const SDL_Rect gameRect{0, kBarHeight, kFrameWidth, kFrameHeight};
+        SDL_RenderCopy(renderer, texture, nullptr, &gameRect);
         SDL_RenderPresent(renderer);
+    }
+
+    // Draws text in logical (NES-pixel) coordinates using the current draw
+    // color. Each lit font pixel becomes a 1x1 rect, which SDL scales up with
+    // the rest of the canvas.
+    void drawText(int x, int y, const char *text) {
+        textRects.clear();
+        for (int i = 0; text[i] != '\0'; ++i) {
+            const Glyph &glyph = glyphFor(text[i]);
+            const int glyphX = x + i * (kGlyphWidth + 1);
+            for (int row = 0; row < kGlyphHeight; ++row) {
+                for (int col = 0; col < kGlyphWidth; ++col) {
+                    if (glyph[row] & (0x10 >> col)) {
+                        textRects.push_back(SDL_Rect{glyphX + col, y + row, 1, 1});
+                    }
+                }
+            }
+        }
+        SDL_RenderFillRects(renderer, textRects.data(), static_cast<int>(textRects.size()));
     }
 
     void shutdown() {
@@ -155,6 +248,7 @@ int main(int argc, char* argv[]) {
 
         bool running = true;
         SDL_Event event;
+        FpsCounter fpsCounter;
 
         // one frame every ~16.6391 ms
         using clock = std::chrono::steady_clock;
@@ -186,7 +280,8 @@ int main(int argc, char* argv[]) {
                 cpu.bus->setControllerState(0, readController1State());
 
                 const auto &fb = cpu.bus->ppu.getFrameBuffer();
-                frontend.presentFrame(fb);
+                fpsCounter.tick();
+                frontend.presentFrame(fb, fpsCounter.fps);
 
                 // Real-time pacing: hold the loop until the next NES frame
                 // tick. sleep_until handles the bulk of the wait cheaply; the
