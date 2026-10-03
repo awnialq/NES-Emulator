@@ -25,6 +25,8 @@ class apu2A03{
             202, 254, 380, 508, 762, 1016, 2034, 4068
         };
 
+        bool frame_irq = false;
+
     private:
         struct pulse{
             uint8_t duty = 0x00;
@@ -110,9 +112,11 @@ class apu2A03{
         struct triangle_wave triangle;
         struct noise_channel noise;
         struct dmc_channel dmc;
-        uint8_t frame_counter = 0x00;
+        uint16_t frame_counter = 0x0000;
         uint8_t status = 0x00;
         bool turn_to_clock = true;
+        bool five_step_mode = false;
+        bool irq_inhibit = false;
         void pulse_clock(bool p1_or_p2);
         void triangle_clock();
         void noise_clock();

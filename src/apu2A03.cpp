@@ -124,30 +124,22 @@ uint8_t apu::cpuRead(uint16_t addr){
 }
 
 void apu::pulse_clock(bool p1_or_p2){
-    if(!p1_or_p2){
-        // clock pulse1
-        if(pulse1.current_timer == 0){  // will run intially which is more hardware accurage ig
-            // Handle pulse1 timer overflow
-            pulse1.current_timer = pulse1.timer;
-            if(pulse1.sequence_step == 7){
-                pulse1.sequence_step = 0;
-            }
-            else{
-                ++pulse1.sequence_step;
-            }
+    struct pulse &p = p1_or_p2 ? pulse2 : pulse1;
+    // clock pulse1
+    if(p.current_timer == 0){  // will run intially which is more hardware accurage ig
+        // Handle pulse1 timer overflow
+        p.current_timer = p.timer;
+        if(p.sequence_step == 7){
+            p.sequence_step = 0;
         }
         else{
-            --pulse1.current_timer;
-        }   
-
-
-
-
-        turn_to_clock = false;
+            ++p.sequence_step;
+        }
     }
     else{
-        // clock pulse2
-    }
+        --p.current_timer;
+    }   
+
 }
 
 void apu::clock(){
